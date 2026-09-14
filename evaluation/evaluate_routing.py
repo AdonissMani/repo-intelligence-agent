@@ -56,8 +56,10 @@ def evaluate() -> dict[str, dict[str, float]]:
     report = {}
     run_records = []
 
-    for strategy in ["lexical", "semantic", "metadata", "graph", "hybrid"]:
+    for strategy in ["lexical", "semantic", "metadata", "graph", "hybrid", "adaptive"]:
         depths = [0, 1, 2, 3] if strategy in {"graph", "hybrid"} else [0]
+        if strategy == "adaptive":
+            depths = [0]
         for graph_depth in depths:
             key = f"{strategy}_d{graph_depth}" if strategy in {"graph", "hybrid"} else strategy
             report[key] = _evaluate_strategy(router, questions, strategy, graph_depth, run_records)
@@ -79,7 +81,7 @@ def _evaluate_strategy(
     graph_depth: int,
     run_records: list[dict],
 ) -> dict[str, float]:
-    top1 = primary_top3 = set_recall = mrr = path_score = latency = tokens = explored = 0.0
+    top1 = primary_top3 = set_recall = mrr = path_score = latency = tokens = explored = edges = depth = 0.0
     for item in questions:
         results, stats = router.route(item["question"], strategy=strategy, limit=5, graph_depth=graph_depth)
         predicted = [result.name for result in results]
@@ -94,7 +96,9 @@ def _evaluate_strategy(
         path_score += path_accuracy(paths, item.get("expected_relationships", []))
         latency += float(stats["latency_ms"])
         tokens += float(stats["tokens"])
-        explored += float(stats["repositories_considered"])
+        explored += float(stats.get("adaptive_nodes_expanded", stats.get("repositories_considered", 0)))
+        edges += float(stats.get("adaptive_edges_traversed", sum(len(path) - 1 for path in paths if path)))
+        depth += float(stats.get("adaptive_depth_reached", graph_depth))
         run_records.append({
             "question": item["question"],
             "strategy": strategy,
@@ -105,6 +109,9 @@ def _evaluate_strategy(
             "latency_ms": stats["latency_ms"],
             "tokens": stats["tokens"],
             "repositories_considered": stats["repositories_considered"],
+            "exploration_nodes": stats.get("adaptive_nodes_expanded", len(predicted)),
+            "exploration_edges": stats.get("adaptive_edges_traversed", sum(len(path) - 1 for path in paths if path)),
+            "depth_reached": stats.get("adaptive_depth_reached", graph_depth),
             "success": bool(predicted and predicted[0] in primary),
             "paths": [
                 {
@@ -126,6 +133,8 @@ def _evaluate_strategy(
         "avg_latency_ms": round(latency / total, 2),
         "avg_tokens": round(tokens / total, 2),
         "avg_repositories_explored": round(explored / total, 2),
+        "avg_depth_reached": round(depth / total, 2),
+        "avg_edges_traversed": round(edges / total, 2),
     }
 
 
@@ -148,6 +157,8 @@ def main() -> None:
         )
     print("\nRouting Strategy Comparison")
     for strategy, metrics in report.items():
+        if strategy == "topology":
+            continue
         print(f"\n{strategy.title()}:")
         print(f"Top-1: {metrics['top1']:.0%}")
         print(f"Primary Top-3: {metrics['primary_top3']:.0%}")
@@ -155,6 +166,12 @@ def main() -> None:
         print(f"Relevant-set recall: {metrics['relevant_set_recall']:.0%}")
         print(f"Path accuracy: {metrics['path_accuracy']:.0%}")
         print(f"Avg latency: {metrics['avg_latency_ms']} ms")
+        print(
+            "Exploration: "
+            f"depth={metrics.get('avg_depth_reached', 0):.2f}, "
+            f"nodes={metrics.get('avg_repositories_explored', 0):.2f}, "
+            f"edges={metrics.get('avg_edges_traversed', 0):.2f}"
+        )
 
 
 if __name__ == "__main__":

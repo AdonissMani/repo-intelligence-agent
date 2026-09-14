@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import re
 import time
 
@@ -20,6 +20,48 @@ HYBRID_WEIGHTS = {
     "metadata": 0.25,
     "graph": 0.20,
 }
+
+
+@dataclass(frozen=True)
+class AdaptiveConfig:
+    initial_seed_count: int = 5
+    max_depth: int = 3
+    max_nodes: int = 20
+    max_nodes: int = 20
+    max_rounds: int = 4
+    min_confidence: float = 0.70
+    min_margin: float = 0.10
+    min_evidence_gain: float = 0.05
+
+
+@dataclass
+class RetrievalState:
+    question: str
+    round_number: int
+    depth_reached: int
+    candidates: list[str]
+    explored_repositories: set[str] = field(default_factory=set)
+    explored_edges: list[tuple[str, str]] = field(default_factory=list)
+    confidence: float = 0.0
+    margin: float = 0.0
+    evidence_gain: float = 0.0
+    sufficient: bool = False
+    stop_reason: str | None = None
+
+
+@dataclass
+class QueryProfile:
+    category: str
+    likely_multi_repo: bool = False
+
+
+@dataclass
+class SufficiencyResult:
+    sufficient: bool
+    confidence: float
+    margin: float
+    reason: str
+    evidence_gain: float = 0.0
 
 
 @dataclass
@@ -57,6 +99,10 @@ class RepositoryRouter:
         lexical = self.lexical_index.search(question)
         semantic = self.semantic_index.search(question)
         metadata = self._metadata_scores(question)
+
+        if strategy == "adaptive":
+            return self._route_adaptive(question, lexical, semantic, metadata, limit)
+
         graph_paths = self._graph_paths(lexical, semantic, metadata, graph_depth)
         graph = self._graph_scores(graph_paths)
         scores: dict[str, float] = {}
@@ -87,6 +133,169 @@ class RepositoryRouter:
             "graph_depth": graph_depth,
         }
         return results, stats
+
+    def _route_adaptive(
+        self,
+        question: str,
+        lexical: dict[str, float],
+        semantic: dict[str, float],
+        metadata: dict[str, float],
+        limit: int,
+    ) -> tuple[list[RouteResult], dict[str, int | float | str | bool | list[dict]]]:
+        started = time.perf_counter()
+        config = AdaptiveConfig()
+        profile = self._query_profile(question)
+        final_scores = self._hybrid_scores(lexical, semantic, metadata, {})
+        previous_best = 0.0
+        final_depth = 0
+        final_reason = "NO_EVIDENCE"
+        adaptive_sufficient = False
+        rounds = 0
+        bind_graph_paths: dict[str, GraphPath] = {}
+        explored_nodes: set[str] = set()
+        explored_edges: list[tuple[str, str]] = []
+        round_traces: list[dict] = []
+
+        for depth in range(0, config.max_depth + 1):
+            if rounds >= config.max_rounds:
+                final_reason = "MAX_ROUNDS_REACHED"
+                break
+            graph_paths = self._graph_paths(lexical, semantic, metadata, depth)
+            graph = self._graph_scores(graph_paths)
+            candidate_scores = self._hybrid_scores(lexical, semantic, metadata, graph)
+            ranked = sorted(candidate_scores.items(), key=lambda item: item[1], reverse=True)
+            if ranked:
+                top_name, top_score = ranked[0]
+                second_score = ranked[1][1] if len(ranked) > 1 else 0.0
+                margin = max(0.0, top_score - second_score)
+                confidence = top_score
+                evidence_gain = max(0.0, confidence - previous_best)
+                sufficiency = self._evaluate_sufficiency(candidate_scores, profile, config, confidence, margin, evidence_gain)
+                final_scores = candidate_scores
+                bind_graph_paths = graph_paths
+                final_depth = depth
+                final_reason = sufficiency.reason
+                adaptive_sufficient = sufficiency.sufficient
+                rounds = depth + 1
+                previous_best = confidence
+                explored_nodes.update(graph_paths.keys())
+                explored_edges.extend(
+                    [(path.repository, target) for path in graph_paths.values() for target in path.path[1:]]
+                )
+                round_traces.append(
+                    {
+                        "round": depth,
+                        "depth": depth,
+                        "candidates": [name for name, _ in ranked[: min(5, len(ranked))]],
+                        "confidence": round(confidence, 4),
+                        "margin": round(margin, 4),
+                        "evidence_gain": round(evidence_gain, 4),
+                        "sufficient": sufficiency.sufficient,
+                        "stop_reason": sufficiency.reason,
+                    }
+                )
+                if sufficiency.sufficient:
+                    break
+            if len(explored_nodes) >= config.max_nodes:
+                final_reason = "MAX_NODES_REACHED"
+                adaptive_sufficient = False
+                break
+            if depth >= config.max_depth:
+                final_reason = "MAX_DEPTH_REACHED"
+                adaptive_sufficient = False
+                break
+        ranked = sorted(final_scores.items(), key=lambda item: item[1], reverse=True)[:limit]
+        results = [self._result(name, score, "adaptive", bind_graph_paths.get(name)) for name, score in ranked if score > 0]
+        state = RetrievalState(
+            question=question,
+            round_number=max(1, rounds),
+            depth_reached=final_depth,
+            candidates=[name for name, _ in ranked],
+            explored_repositories=set(explored_nodes),
+            explored_edges=explored_edges,
+            confidence=max(0.0, max(score for _, score in ranked) if ranked else 0.0),
+            margin=max(0.0, (ranked[0][1] - ranked[1][1]) if len(ranked) > 1 else ranked[0][1]),
+            evidence_gain=max(0.0, previous_best),
+            sufficient=adaptive_sufficient,
+            stop_reason=final_reason,
+        )
+        stats: dict[str, int | float | str | bool | list[dict]] = {
+            "latency_ms": round((time.perf_counter() - started) * 1000, 2),
+            "tokens": len(TOKEN_RE.findall(question)),
+            "repositories_considered": len(self.repositories),
+            "graph_depth": final_depth,
+            "adaptive_depth_reached": final_depth,
+            "adaptive_sufficient": adaptive_sufficient,
+            "adaptive_stop_reason": final_reason,
+            "adaptive_rounds": rounds,
+            "adaptive_nodes_expanded": len(explored_nodes),
+            "adaptive_edges_traversed": len(explored_edges),
+            "adaptive_trace": round_traces,
+            "adaptive_state": {
+                "question": state.question,
+                "depth_reached": state.depth_reached,
+                "explored_repositories": sorted(state.explored_repositories),
+                "edges_traversed": len(state.explored_edges),
+                "confidence": round(state.confidence, 4),
+                "margin": round(state.margin, 4),
+                "evidence_gain": round(state.evidence_gain, 4),
+                "sufficient": state.sufficient,
+                "stop_reason": state.stop_reason,
+            },
+        }
+        return results, stats
+
+    def _query_profile(self, question: str) -> QueryProfile:
+        q = question.lower()
+        if any(phrase in q for phrase in ["what systems are involved", "what happens after", "if ", "affected", "participate", "flow", "what repositories participate"]):
+            return QueryProfile(category="cross_repository", likely_multi_repo=True)
+        if any(phrase in q for phrase in ["alert", "deployment", "terraform", "kubernetes", "timeout", "observability", "production"]):
+            return QueryProfile(category="infrastructure", likely_multi_repo=False)
+        if any(phrase in q for phrase in ["which service", "which repo", "where is", "where are", "which repository", "owns", "owner"]):
+            return QueryProfile(category="direct", likely_multi_repo=False)
+        return QueryProfile(category="architecture", likely_multi_repo=True)
+
+    def _evaluate_sufficiency(
+        self,
+        scores: dict[str, float],
+        profile: QueryProfile,
+        config: AdaptiveConfig,
+        confidence: float,
+        margin: float,
+        evidence_gain: float,
+    ) -> SufficiencyResult:
+        ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+        if not ranked:
+            return SufficiencyResult(False, 0.0, 0.0, "NO_EVIDENCE", 0.0)
+        top_score = ranked[0][1]
+        second_score = ranked[1][1] if len(ranked) > 1 else 0.0
+        confidence = max(confidence, top_score)
+        margin = max(margin, top_score - second_score)
+        direct_threshold = config.min_confidence if not profile.likely_multi_repo else config.min_confidence - 0.08
+        if confidence >= direct_threshold and margin >= config.min_margin:
+            return SufficiencyResult(True, confidence, margin, "HIGH_CONFIDENCE", evidence_gain)
+        if profile.likely_multi_repo and confidence >= 0.60 and margin >= 0.05:
+            return SufficiencyResult(False, confidence, margin, "MULTI_REPO_CONTINUE", evidence_gain)
+        if profile.likely_multi_repo and evidence_gain >= config.min_evidence_gain:
+            return SufficiencyResult(True, confidence, margin, "MEANINGFUL_EVIDENCE_GAIN", evidence_gain)
+        return SufficiencyResult(False, confidence, margin, "INSUFFICIENT_EVIDENCE", evidence_gain)
+
+    def _hybrid_scores(
+        self,
+        lexical: dict[str, float],
+        semantic: dict[str, float],
+        metadata: dict[str, float],
+        graph: dict[str, float],
+    ) -> dict[str, float]:
+        scores: dict[str, float] = {}
+        for repo in self.repositories:
+            scores[repo.name] = (
+                lexical[repo.name] * HYBRID_WEIGHTS["lexical"]
+                + semantic[repo.name] * HYBRID_WEIGHTS["semantic"]
+                + metadata[repo.name] * HYBRID_WEIGHTS["metadata"]
+                + graph.get(repo.name, 0.0) * HYBRID_WEIGHTS["graph"]
+            )
+        return scores
 
     def _metadata_scores(self, question: str) -> dict[str, float]:
         q_tokens = set(TOKEN_RE.findall(question.lower().replace("-", " ")))

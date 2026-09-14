@@ -17,6 +17,18 @@ class RouterTests(unittest.TestCase):
         results, _ = build_router().route("merchant settlement views", strategy="lexical")
         self.assertEqual(results[0].name, "merchant-service")
 
+    def test_adaptive_strategy_stops_early_for_direct_question(self):
+        results, stats = build_router().route("Which repository owns customer contact preferences?", strategy="adaptive")
+        self.assertEqual(results[0].name, "customer-profile")
+        self.assertTrue(stats["adaptive_sufficient"])
+        self.assertIn(stats["adaptive_stop_reason"], {"HIGH_CONFIDENCE", "HIGH_MARGIN"})
+
+    def test_adaptive_strategy_expands_for_multi_repo_question(self):
+        results, stats = build_router().route("What systems are involved when a merchant requests a refund?", strategy="adaptive")
+        self.assertTrue(len(results) >= 3)
+        self.assertGreaterEqual(stats["adaptive_depth_reached"], 1)
+        self.assertTrue(stats["adaptive_rounds"] >= 1)
+
     def test_invalid_strategy_raises(self):
         with self.assertRaises(ValueError):
             build_router().route("anything", strategy="answer_key")
