@@ -6,7 +6,7 @@ from app.db.models import Relationship
 from app.graph.extractor import extract_relationships
 from app.graph.traversal import RepositoryGraph
 from app.ingestion.parser import ingest_enterprise
-from app.routing.router import RepositoryRouter
+from app.routing.router import AdaptiveConfig, RepositoryRouter
 
 
 def build_router():
@@ -56,6 +56,27 @@ class RouterTests(unittest.TestCase):
         self.assertNotIn("max_nodes", field_names)
         self.assertEqual(len(RepositoryRouter.__dict__.get("__annotations__", {})), 0)
         self.assertIn("max_nodes", RepositoryRouter.route.__globals__["AdaptiveConfig"].__dataclass_fields__)
+
+    def test_adaptive_routing_respects_budget_and_marks_exhaustion(self):
+        repos = ingest_enterprise(ENTERPRISE_REPOS)
+        router = RepositoryRouter(
+            repos,
+            extract_relationships(ENTERPRISE_REPOS, repos),
+            adaptive_config=AdaptiveConfig(max_nodes=1, max_depth=3, max_rounds=4),
+        )
+        _, stats = router.route("What systems are involved when a merchant requests a refund?", strategy="adaptive")
+        self.assertLessEqual(stats["adaptive_nodes_expanded"], 1)
+        self.assertLessEqual(stats["nodes_expanded"], 1)
+        self.assertTrue(stats.get("budget_exhausted", False) or stats["adaptive_stop_reason"] == "MAX_NODES_REACHED")
+
+    def test_evidence_gain_requires_new_information(self):
+        router = build_router()
+        previous = {"merchant-service": 0.72, "payment-core": 0.69}
+        current = {"merchant-service": 0.72, "payment-core": 0.69, "ledger-core": 0.65}
+        self.assertGreater(router._compute_evidence_gain(previous, current), 0.0)
+
+        unchanged = {"merchant-service": 0.73, "payment-core": 0.70}
+        self.assertLessEqual(router._compute_evidence_gain(unchanged, unchanged), 0.05)
 
     def test_graph_depth_changes_path_availability(self):
         router = build_router()

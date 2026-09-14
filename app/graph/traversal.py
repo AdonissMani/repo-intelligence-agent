@@ -84,17 +84,20 @@ class RepositoryGraph:
 
         while queue:
             current, score, path, rels, evidence, hops = queue.popleft()
-            if max_nodes is not None and len(best) >= max_nodes:
-                break
             if hops >= depth:
                 continue
-            for target, rel_type, rel_evidence in self.adjacency.get(current, []):
+            if max_nodes is not None and len(best) >= max_nodes:
+                break
+            for target, rel_type, rel_evidence in sorted(
+                self.adjacency.get(current, []),
+                key=lambda item: (item[0], item[1], item[2] or ""),
+            ):
                 if target in path:
-                    continue
-                if max_nodes is not None and target in best:
                     continue
                 if max_nodes is not None and len(best) >= max_nodes:
                     break
+                if target in best:
+                    continue
                 edge_weight = relationship_weight(rel_type)
                 next_score = score * edge_weight * DECAY_BY_HOP
                 next_path = path + [target]
@@ -106,6 +109,8 @@ class RepositoryGraph:
                 if existing is None or next_score > existing.score:
                     best[target] = GraphPath(target, next_score, next_path, next_rels, next_evidence)
                     queue.append((target, next_score, next_path, next_rels, next_evidence, hops + 1))
+                    if max_nodes is not None and len(best) >= max_nodes:
+                        break
         return best
 
 

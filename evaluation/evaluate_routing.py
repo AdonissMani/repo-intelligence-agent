@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import time
 
@@ -55,6 +56,8 @@ def evaluate() -> dict[str, dict[str, float]]:
     questions = load_questions(ROOT / "benchmarks" / "routing_questions.yaml")
     report = {}
     run_records = []
+    embedding_provider = os.getenv("REPO_INTEL_EMBEDDING_PROVIDER", "hashing")
+    embedding_model = os.getenv("REPO_INTEL_EMBEDDING_MODEL")
 
     for strategy in ["lexical", "semantic", "metadata", "graph", "hybrid", "adaptive"]:
         depths = [0, 1, 2, 3] if strategy in {"graph", "hybrid"} else [0]
@@ -67,7 +70,17 @@ def evaluate() -> dict[str, dict[str, float]]:
     experiments_dir = ROOT / "experiments"
     experiments_dir.mkdir(exist_ok=True)
     run_path = experiments_dir / f"routing_run_{int(time.time())}.json"
-    run_path.write_text(json.dumps(run_records, indent=2), encoding="utf-8")
+    run_path.write_text(
+        json.dumps(
+            {
+                "embedding_provider": embedding_provider,
+                "embedding_model": embedding_model,
+                "runs": run_records,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     ground_truth = load_ground_truth_relationships(ROOT / "benchmarks" / "ground_truth" / "enterprise_graph.yaml")
     report["topology"] = topology_metrics(discovered_relationship_set(relationships), ground_truth)
@@ -107,6 +120,8 @@ def _evaluate_strategy(
             "question": item["question"],
             "strategy": strategy,
             "strategy_label": "Adaptive Hybrid" if strategy == "adaptive" else strategy.replace("_d", " D").title(),
+            "embedding_provider": os.getenv("REPO_INTEL_EMBEDDING_PROVIDER", "hashing"),
+            "embedding_model": os.getenv("REPO_INTEL_EMBEDDING_MODEL"),
             "predicted_repositories": predicted,
             "primary_repositories": primary,
             "secondary_repositories": secondary,

@@ -79,6 +79,7 @@ class RepositoryRouter:
         repositories: list[RepositoryRecord],
         relationships: list[Relationship],
         embedding_provider: EmbeddingProvider | None = None,
+        adaptive_config: AdaptiveConfig | None = None,
     ):
         self.repositories = repositories
         self.by_name = {repo.name: repo for repo in repositories}
@@ -86,6 +87,7 @@ class RepositoryRouter:
         self.lexical_index = BM25Index(repositories)
         self.semantic_index = RepositoryIndex(repositories, embedding_provider or make_embedding_provider())
         self.graph = RepositoryGraph(relationships, set(self.by_name))
+        self.adaptive_config = adaptive_config or AdaptiveConfig()
 
     def route(
         self,
@@ -147,25 +149,30 @@ class RepositoryRouter:
         limit: int,
     ) -> tuple[list[RouteResult], dict[str, int | float | str | bool | list[dict]]]:
         started = time.perf_counter()
-        config = AdaptiveConfig()
+        config = self.adaptive_config
         profile = self._query_profile(question)
         final_scores = self._hybrid_scores(lexical, semantic, metadata, {})
-        previous_best = 0.0
-        previous_ranked: list[tuple[str, float]] = []
         final_depth = 0
         final_reason = "NO_EVIDENCE"
+        final_evidence_gain = 0.0
         adaptive_sufficient = False
         rounds = 0
         bind_graph_paths: dict[str, GraphPath] = {}
         explored_nodes: set[str] = set()
         explored_edges: list[tuple[str, str]] = []
         round_traces: list[dict] = []
+        previous_nodes: set[str] = set()
+        previous_edges: set[tuple[str, str]] = set()
 
         for depth in range(0, config.max_depth + 1):
             if rounds >= config.max_rounds:
                 final_reason = "MAX_ROUNDS_REACHED"
                 break
-            graph_paths = self._graph_paths(lexical, semantic, metadata, depth)
+            graph_paths = self._graph_paths(lexical, semantic, metadata, depth, max_nodes=config.max_nodes)
+            current_nodes = set(graph_paths.keys())
+            current_edges = set()
+            for path in graph_paths.values():
+                current_edges.update(zip(path.path, path.path[1:]))
             graph = self._graph_scores(graph_paths)
             candidate_scores = self._hybrid_scores(lexical, semantic, metadata, graph)
             ranked = sorted(candidate_scores.items(), key=lambda item: item[1], reverse=True)
@@ -174,30 +181,38 @@ class RepositoryRouter:
                 second_score = ranked[1][1] if len(ranked) > 1 else 0.0
                 margin = max(0.0, top_score - second_score)
                 confidence = top_score
-                evidence_gain = self._compute_evidence_gain(
-                    {name: score for name, score in previous_ranked} if previous_ranked else {},
-                    {name: score for name, score in ranked},
-                ) if previous_ranked else 0.0
+                new_nodes = current_nodes - previous_nodes
+                new_edges = current_edges - previous_edges
+                evidence_gain = (
+                    0.6 * (len(new_nodes) / max(len(current_nodes), 1))
+                    + 0.4 * (len(new_edges) / max(len(current_edges), 1))
+                    if current_edges or current_nodes else 0.0
+                )
+                ranking_gain = max(0.0, confidence - max(0.0, max((score for _, score in ranked[1:]), default=0.0)))
                 sufficiency = self._evaluate_sufficiency(candidate_scores, profile, config, confidence, margin, evidence_gain)
                 final_scores = candidate_scores
                 bind_graph_paths = graph_paths
                 final_depth = depth
                 final_reason = sufficiency.reason
+                final_evidence_gain = evidence_gain
                 adaptive_sufficient = sufficiency.sufficient
                 rounds = depth + 1
-                previous_best = confidence
-                previous_ranked = ranked
-                explored_nodes.update(graph_paths.keys())
-                explored_edges.extend(
-                    [(path.repository, target) for path in graph_paths.values() for target in path.path[1:]]
-                )
+                explored_nodes = current_nodes
+                explored_edges = sorted(current_edges)
+                previous_nodes = current_nodes
+                previous_edges = current_edges
                 round_traces.append(
                     {
                         "round": depth,
                         "depth": depth,
                         "candidates": [name for name, _ in ranked[: min(5, len(ranked))]],
+                        "nodes_explored": len(explored_nodes),
+                        "edges_explored": len(explored_edges),
+                        "new_nodes": len(new_nodes),
+                        "new_edges": len(new_edges),
                         "confidence": round(confidence, 4),
                         "margin": round(margin, 4),
+                        "ranking_gain": round(ranking_gain, 4),
                         "evidence_gain": round(evidence_gain, 4),
                         "sufficient": sufficiency.sufficient,
                         "stop_reason": sufficiency.reason,
@@ -224,7 +239,7 @@ class RepositoryRouter:
             explored_edges=explored_edges,
             confidence=max(0.0, max(score for _, score in ranked) if ranked else 0.0),
             margin=max(0.0, (ranked[0][1] - ranked[1][1]) if len(ranked) > 1 else ranked[0][1]),
-            evidence_gain=max(0.0, previous_best),
+            evidence_gain=final_evidence_gain,
             sufficient=adaptive_sufficient,
             stop_reason=final_reason,
         )
@@ -366,12 +381,13 @@ class RepositoryRouter:
         semantic: dict[str, float],
         metadata: dict[str, float],
         graph_depth: int,
+        max_nodes: int | None = None,
     ) -> dict[str, GraphPath]:
         seed_scores = {}
         for repo in self.repositories:
             seed_scores[repo.name] = max(lexical[repo.name], semantic[repo.name], metadata[repo.name])
         seeds = dict(sorted(seed_scores.items(), key=lambda item: item[1], reverse=True)[:SEED_COUNT])
-        return self.graph.expand(seeds, max(0, graph_depth), max_nodes=getattr(self, "max_nodes", None))
+        return self.graph.expand(seeds, max(0, graph_depth), max_nodes=max_nodes)
 
     def _graph_scores(self, graph_paths: dict[str, GraphPath]) -> dict[str, float]:
         raw = {repo.name: graph_paths.get(repo.name, GraphPath(repo.name, 0.0, [repo.name])).score for repo in self.repositories}
