@@ -20,6 +20,7 @@ class RouteHandler(BaseHTTPRequestHandler):
             payload.get("question", ""),
             strategy=payload.get("strategy", "hybrid"),
             limit=int(payload.get("limit", 5)),
+            graph_depth=int(payload.get("graph_depth", 2)),
         )
         body = json.dumps(
             {

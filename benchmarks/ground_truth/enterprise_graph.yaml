@@ -1,0 +1,345 @@
+repositories:
+  - name: identity-core
+  - name: payment-core
+  - name: customer-profile
+  - name: notification-core
+  - name: fraud-service
+  - name: ledger-core
+  - name: checkout-service
+  - name: merchant-service
+  - name: subscription-service
+  - name: loan-orchestrator
+  - name: risk-engine
+  - name: repayment-service
+  - name: platform-infra
+  - name: deployment-platform
+  - name: observability-platform
+
+relationships:
+  - source: identity-core
+    type: DEPENDS_ON
+    target: customer-profile
+  - source: identity-core
+    type: DEPENDS_ON
+    target: notification-core
+  - source: payment-core
+    type: DEPENDS_ON
+    target: fraud-service
+  - source: payment-core
+    type: DEPENDS_ON
+    target: identity-core
+  - source: payment-core
+    type: DEPENDS_ON
+    target: ledger-core
+  - source: notification-core
+    type: DEPENDS_ON
+    target: customer-profile
+  - source: fraud-service
+    type: DEPENDS_ON
+    target: customer-profile
+  - source: fraud-service
+    type: DEPENDS_ON
+    target: identity-core
+  - source: checkout-service
+    type: DEPENDS_ON
+    target: identity-core
+  - source: checkout-service
+    type: DEPENDS_ON
+    target: customer-profile
+  - source: checkout-service
+    type: DEPENDS_ON
+    target: payment-core
+  - source: checkout-service
+    type: DEPENDS_ON
+    target: fraud-service
+  - source: merchant-service
+    type: DEPENDS_ON
+    target: payment-core
+  - source: merchant-service
+    type: DEPENDS_ON
+    target: ledger-core
+  - source: merchant-service
+    type: DEPENDS_ON
+    target: identity-core
+  - source: subscription-service
+    type: DEPENDS_ON
+    target: payment-core
+  - source: subscription-service
+    type: DEPENDS_ON
+    target: customer-profile
+  - source: subscription-service
+    type: DEPENDS_ON
+    target: notification-core
+  - source: loan-orchestrator
+    type: DEPENDS_ON
+    target: identity-core
+  - source: loan-orchestrator
+    type: DEPENDS_ON
+    target: customer-profile
+  - source: loan-orchestrator
+    type: DEPENDS_ON
+    target: risk-engine
+  - source: loan-orchestrator
+    type: DEPENDS_ON
+    target: notification-core
+  - source: risk-engine
+    type: DEPENDS_ON
+    target: customer-profile
+  - source: risk-engine
+    type: DEPENDS_ON
+    target: identity-core
+  - source: repayment-service
+    type: DEPENDS_ON
+    target: payment-core
+  - source: repayment-service
+    type: DEPENDS_ON
+    target: ledger-core
+  - source: repayment-service
+    type: DEPENDS_ON
+    target: customer-profile
+  - source: repayment-service
+    type: DEPENDS_ON
+    target: notification-core
+  - source: deployment-platform
+    type: DEPENDS_ON
+    target: platform-infra
+  - source: observability-platform
+    type: DEPENDS_ON
+    target: deployment-platform
+  - source: checkout-service
+    type: CONSUMES
+    target: customer-profile
+  - source: subscription-service
+    type: CONSUMES
+    target: customer-profile
+  - source: loan-orchestrator
+    type: CONSUMES
+    target: customer-profile
+  - source: notification-core
+    type: CONSUMES
+    target: customer-profile
+  - source: fraud-service
+    type: CONSUMES
+    target: customer-profile
+  - source: risk-engine
+    type: CONSUMES
+    target: customer-profile
+  - source: repayment-service
+    type: CONSUMES
+    target: customer-profile
+  - source: identity-core
+    type: CONSUMES
+    target: deployment-platform
+  - source: payment-core
+    type: CONSUMES
+    target: deployment-platform
+  - source: checkout-service
+    type: CONSUMES
+    target: deployment-platform
+  - source: merchant-service
+    type: CONSUMES
+    target: deployment-platform
+  - source: subscription-service
+    type: CONSUMES
+    target: deployment-platform
+  - source: loan-orchestrator
+    type: CONSUMES
+    target: deployment-platform
+  - source: repayment-service
+    type: CONSUMES
+    target: deployment-platform
+  - source: payment-core
+    type: CONSUMES
+    target: fraud-service
+  - source: checkout-service
+    type: CONSUMES
+    target: fraud-service
+  - source: checkout-service
+    type: CONSUMES
+    target: identity-core
+  - source: merchant-service
+    type: CONSUMES
+    target: identity-core
+  - source: loan-orchestrator
+    type: CONSUMES
+    target: identity-core
+  - source: subscription-service
+    type: CONSUMES
+    target: identity-core
+  - source: payment-core
+    type: CONSUMES
+    target: ledger-core
+  - source: repayment-service
+    type: CONSUMES
+    target: ledger-core
+  - source: merchant-service
+    type: CONSUMES
+    target: ledger-core
+  - source: identity-core
+    type: CONSUMES
+    target: notification-core
+  - source: subscription-service
+    type: CONSUMES
+    target: notification-core
+  - source: loan-orchestrator
+    type: CONSUMES
+    target: notification-core
+  - source: repayment-service
+    type: CONSUMES
+    target: notification-core
+  - source: payment-core
+    type: CONSUMES
+    target: observability-platform
+  - source: checkout-service
+    type: CONSUMES
+    target: observability-platform
+  - source: subscription-service
+    type: CONSUMES
+    target: observability-platform
+  - source: loan-orchestrator
+    type: CONSUMES
+    target: observability-platform
+  - source: repayment-service
+    type: CONSUMES
+    target: observability-platform
+  - source: checkout-service
+    type: CONSUMES
+    target: payment-core
+  - source: merchant-service
+    type: CONSUMES
+    target: payment-core
+  - source: subscription-service
+    type: CONSUMES
+    target: payment-core
+  - source: repayment-service
+    type: CONSUMES
+    target: payment-core
+  - source: identity-core
+    type: CONSUMES
+    target: platform-infra
+  - source: payment-core
+    type: CONSUMES
+    target: platform-infra
+  - source: checkout-service
+    type: CONSUMES
+    target: platform-infra
+  - source: loan-orchestrator
+    type: CONSUMES
+    target: platform-infra
+  - source: subscription-service
+    type: CONSUMES
+    target: platform-infra
+  - source: loan-orchestrator
+    type: CONSUMES
+    target: risk-engine
+  - source: identity-core
+    type: PRODUCES_EVENT
+    target: UserCreated
+  - source: identity-core
+    type: PRODUCES_EVENT
+    target: IdentityVerified
+  - source: payment-core
+    type: PRODUCES_EVENT
+    target: PaymentAuthorized
+  - source: payment-core
+    type: PRODUCES_EVENT
+    target: PaymentCaptured
+  - source: payment-core
+    type: PRODUCES_EVENT
+    target: PaymentRefundRequested
+  - source: payment-core
+    type: PRODUCES_EVENT
+    target: PaymentFailed
+  - source: customer-profile
+    type: PRODUCES_EVENT
+    target: CustomerProfileUpdated
+  - source: notification-core
+    type: PRODUCES_EVENT
+    target: NotificationSent
+  - source: notification-core
+    type: PRODUCES_EVENT
+    target: NotificationFailed
+  - source: fraud-service
+    type: PRODUCES_EVENT
+    target: FraudCheckCompleted
+  - source: ledger-core
+    type: PRODUCES_EVENT
+    target: LedgerEntryPosted
+  - source: ledger-core
+    type: PRODUCES_EVENT
+    target: LedgerReversalPosted
+  - source: checkout-service
+    type: PRODUCES_EVENT
+    target: CheckoutCompleted
+  - source: checkout-service
+    type: PRODUCES_EVENT
+    target: CheckoutFailed
+  - source: merchant-service
+    type: PRODUCES_EVENT
+    target: MerchantRefundRequested
+  - source: subscription-service
+    type: PRODUCES_EVENT
+    target: SubscriptionSuspended
+  - source: subscription-service
+    type: PRODUCES_EVENT
+    target: SubscriptionRenewed
+  - source: loan-orchestrator
+    type: PRODUCES_EVENT
+    target: LoanApproved
+  - source: loan-orchestrator
+    type: PRODUCES_EVENT
+    target: LoanRejected
+  - source: risk-engine
+    type: PRODUCES_EVENT
+    target: RiskDecisionCalculated
+  - source: repayment-service
+    type: PRODUCES_EVENT
+    target: RepaymentCollected
+  - source: repayment-service
+    type: PRODUCES_EVENT
+    target: RepaymentFailed
+  - source: notification-core
+    type: CONSUMES_EVENT
+    target: PaymentFailed
+  - source: notification-core
+    type: CONSUMES_EVENT
+    target: PaymentRefundRequested
+  - source: notification-core
+    type: CONSUMES_EVENT
+    target: LoanApproved
+  - source: notification-core
+    type: CONSUMES_EVENT
+    target: LoanRejected
+  - source: subscription-service
+    type: CONSUMES_EVENT
+    target: PaymentFailed
+  - source: loan-orchestrator
+    type: CONSUMES_EVENT
+    target: IdentityVerified
+  - source: repayment-service
+    type: CONSUMES_EVENT
+    target: PaymentFailed
+  - source: ledger-core
+    type: CONSUMES_EVENT
+    target: PaymentAuthorized
+  - source: ledger-core
+    type: CONSUMES_EVENT
+    target: PaymentCaptured
+  - source: ledger-core
+    type: CONSUMES_EVENT
+    target: PaymentRefundRequested
+  - source: customer-profile
+    type: CONSUMES_EVENT
+    target: UserCreated
+  - source: merchant-service
+    type: CONSUMES_EVENT
+    target: PaymentRefundRequested
+  - source: observability-platform
+    type: CONSUMES_EVENT
+    target: PaymentFailed
+  - source: observability-platform
+    type: CONSUMES_EVENT
+    target: PaymentRefundRequested
+  - source: observability-platform
+    type: CONSUMES_EVENT
+    target: LoanRejected

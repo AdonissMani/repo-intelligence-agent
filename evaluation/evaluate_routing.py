@@ -7,7 +7,8 @@ import time
 from app.config.paths import ROOT
 from app.db.registry import load_registry
 from app.routing.router import RepositoryRouter
-from evaluation.metrics import relevant_set_recall, top1_accuracy, top3_recall
+from evaluation.metrics import mean_reciprocal_rank, path_accuracy, relevant_set_recall, top1_accuracy, topk_recall
+from evaluation.topology import discovered_relationship_set, load_ground_truth_relationships, topology_metrics
 
 
 def load_questions(path: Path) -> list[dict]:
@@ -52,55 +53,107 @@ def evaluate() -> dict[str, dict[str, float]]:
     repositories, relationships = load_registry()
     router = RepositoryRouter(repositories, relationships)
     questions = load_questions(ROOT / "benchmarks" / "routing_questions.yaml")
-    strategies = ["semantic", "metadata", "graph", "hybrid"]
     report = {}
+    run_records = []
+
+    for strategy in ["lexical", "semantic", "metadata", "graph", "hybrid"]:
+        depths = [0, 1, 2, 3] if strategy in {"graph", "hybrid"} else [0]
+        for graph_depth in depths:
+            key = f"{strategy}_d{graph_depth}" if strategy in {"graph", "hybrid"} else strategy
+            report[key] = _evaluate_strategy(router, questions, strategy, graph_depth, run_records)
+
     experiments_dir = ROOT / "experiments"
     experiments_dir.mkdir(exist_ok=True)
-    run_records = []
-    for strategy in strategies:
-        top1 = top3 = set_recall = latency = tokens = explored = 0.0
-        for item in questions:
-            results, stats = router.route(item["question"], strategy=strategy, limit=5)
-            predicted = [result.name for result in results]
-            primary = item["primary_repositories"]
-            relevant = list(dict.fromkeys(primary + item.get("secondary_repositories", [])))
-            top1 += top1_accuracy(predicted, primary)
-            top3 += top3_recall(predicted, relevant)
-            set_recall += relevant_set_recall(predicted, relevant)
-            latency += float(stats["latency_ms"])
-            tokens += float(stats["tokens"])
-            explored += float(stats["repositories_considered"])
-            run_records.append({
-                "question": item["question"],
-                "strategy": strategy,
-                "retrieved_repositories": predicted,
-                "gold_repositories": relevant,
-                "latency_ms": stats["latency_ms"],
-                "tokens": stats["tokens"],
-                "success": bool(predicted and predicted[0] in primary),
-            })
-        total = len(questions)
-        report[strategy] = {
-            "top1": round(top1 / total, 3),
-            "top3": round(top3 / total, 3),
-            "relevant_set_recall": round(set_recall / total, 3),
-            "avg_latency_ms": round(latency / total, 2),
-            "avg_tokens": round(tokens / total, 2),
-            "avg_repositories_explored": round(explored / total, 2),
-        }
     run_path = experiments_dir / f"routing_run_{int(time.time())}.json"
     run_path.write_text(json.dumps(run_records, indent=2), encoding="utf-8")
+
+    ground_truth = load_ground_truth_relationships(ROOT / "benchmarks" / "ground_truth" / "enterprise_graph.yaml")
+    report["topology"] = topology_metrics(discovered_relationship_set(relationships), ground_truth)
     return report
+
+
+def _evaluate_strategy(
+    router: RepositoryRouter,
+    questions: list[dict],
+    strategy: str,
+    graph_depth: int,
+    run_records: list[dict],
+) -> dict[str, float]:
+    top1 = primary_top3 = set_recall = mrr = path_score = latency = tokens = explored = 0.0
+    for item in questions:
+        results, stats = router.route(item["question"], strategy=strategy, limit=5, graph_depth=graph_depth)
+        predicted = [result.name for result in results]
+        paths = [result.path for result in results if result.path]
+        primary = item["primary_repositories"]
+        secondary = item.get("secondary_repositories", [])
+        relevant = list(dict.fromkeys(primary + secondary))
+        top1 += top1_accuracy(predicted, primary)
+        primary_top3 += topk_recall(predicted, primary, 3)
+        set_recall += relevant_set_recall(predicted, relevant)
+        mrr += mean_reciprocal_rank(predicted, primary)
+        path_score += path_accuracy(paths, item.get("expected_relationships", []))
+        latency += float(stats["latency_ms"])
+        tokens += float(stats["tokens"])
+        explored += float(stats["repositories_considered"])
+        run_records.append({
+            "question": item["question"],
+            "strategy": strategy,
+            "predicted_repositories": predicted,
+            "primary_repositories": primary,
+            "secondary_repositories": secondary,
+            "graph_depth": graph_depth,
+            "latency_ms": stats["latency_ms"],
+            "tokens": stats["tokens"],
+            "repositories_considered": stats["repositories_considered"],
+            "success": bool(predicted and predicted[0] in primary),
+            "paths": [
+                {
+                    "repository": result.name,
+                    "path": result.path or [result.name],
+                    "relationships": result.relationships or [],
+                    "evidence": result.evidence or [],
+                }
+                for result in results
+            ],
+        })
+    total = len(questions)
+    return {
+        "top1": round(top1 / total, 3),
+        "primary_top3": round(primary_top3 / total, 3),
+        "mrr": round(mrr / total, 3),
+        "relevant_set_recall": round(set_recall / total, 3),
+        "path_accuracy": round(path_score / total, 3),
+        "avg_latency_ms": round(latency / total, 2),
+        "avg_tokens": round(tokens / total, 2),
+        "avg_repositories_explored": round(explored / total, 2),
+    }
 
 
 def main() -> None:
     report = evaluate()
-    print("Routing Strategy Comparison")
+    topology = report.pop("topology")
+    print("Topology Extraction")
+    print(f"Relationship precision: {topology['relationship_precision']:.0%}")
+    print(f"Relationship recall: {topology['relationship_recall']:.0%}")
+    print(f"Relationship F1: {topology['relationship_f1']:.0%}")
+    for relationship_type in ["depends_on", "consumes", "produces_event", "consumes_event"]:
+        precision_key = f"{relationship_type}_relationship_precision"
+        recall_key = f"{relationship_type}_relationship_recall"
+        f1_key = f"{relationship_type}_relationship_f1"
+        print(
+            f"{relationship_type}: "
+            f"P {topology[precision_key]:.0%}, "
+            f"R {topology[recall_key]:.0%}, "
+            f"F1 {topology[f1_key]:.0%}"
+        )
+    print("\nRouting Strategy Comparison")
     for strategy, metrics in report.items():
         print(f"\n{strategy.title()}:")
         print(f"Top-1: {metrics['top1']:.0%}")
-        print(f"Top-3: {metrics['top3']:.0%}")
+        print(f"Primary Top-3: {metrics['primary_top3']:.0%}")
+        print(f"MRR: {metrics['mrr']:.3f}")
         print(f"Relevant-set recall: {metrics['relevant_set_recall']:.0%}")
+        print(f"Path accuracy: {metrics['path_accuracy']:.0%}")
         print(f"Avg latency: {metrics['avg_latency_ms']} ms")
 
 

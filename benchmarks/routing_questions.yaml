@@ -179,3 +179,63 @@ questions:
     secondary_repositories: [payment-core]
     expected_relationships: [platform-infra references payment-core]
     reason: platform-infra owns Terraform database resources.
+  - category: adversarial ambiguity
+    question: Where does payment retry logic live?
+    primary_repositories: [subscription-service]
+    secondary_repositories: [payment-core, repayment-service]
+    expected_relationships: [subscription-service -> payment-core]
+    reason: subscription-service owns billing retry policy; payment-core owns payment state.
+  - category: adversarial ambiguity
+    question: Where is refund logic implemented?
+    primary_repositories: [payment-core]
+    secondary_repositories: [merchant-service, ledger-core]
+    expected_relationships: [merchant-service -> payment-core, payment-core -> ledger-core]
+    reason: payment-core implements refund workflow and eligibility.
+  - category: adversarial ambiguity
+    question: Which service handles customer payment failures?
+    primary_repositories: [notification-core, subscription-service]
+    secondary_repositories: [payment-core, customer-profile]
+    expected_relationships: [payment-core produces PaymentFailed, notification-core consumes PaymentFailed, subscription-service consumes PaymentFailed]
+    reason: payment-core emits failures; notification and subscription handle customer-facing responses.
+  - category: adversarial ambiguity
+    question: Where is loan eligibility decided?
+    primary_repositories: [risk-engine]
+    secondary_repositories: [loan-orchestrator, customer-profile]
+    expected_relationships: [loan-orchestrator -> risk-engine, risk-engine -> customer-profile]
+    reason: risk-engine owns eligibility rules.
+  - category: adversarial ambiguity
+    question: Where are payment timeouts configured?
+    primary_repositories: [deployment-platform]
+    secondary_repositories: [observability-platform, payment-core]
+    expected_relationships: [deployment-platform references payment-core]
+    reason: deployment-platform owns environment timeout values.
+  - category: adversarial ambiguity
+    question: Where should I investigate repeated payment failures?
+    primary_repositories: [observability-platform]
+    secondary_repositories: [payment-core, notification-core]
+    expected_relationships: [payment-core produces PaymentFailed]
+    reason: observability-platform owns alerts and dashboards.
+  - category: adversarial ambiguity
+    question: Which repo owns fraud decisions during checkout?
+    primary_repositories: [fraud-service]
+    secondary_repositories: [checkout-service, payment-core]
+    expected_relationships: [checkout-service -> fraud-service, payment-core -> fraud-service]
+    reason: fraud-service owns the fraud decision model.
+  - category: adversarial ambiguity
+    question: Which repository should change for repayment ledger posting?
+    primary_repositories: [repayment-service, ledger-core]
+    secondary_repositories: [payment-core]
+    expected_relationships: [repayment-service -> ledger-core]
+    reason: repayment-service integrates with ledger-core for repayment accounting.
+  - category: adversarial ambiguity
+    question: Where do refund emails get selected?
+    primary_repositories: [notification-core]
+    secondary_repositories: [payment-core, merchant-service]
+    expected_relationships: [notification-core consumes PaymentRefundRequested]
+    reason: notification-core owns message templates and delivery.
+  - category: adversarial ambiguity
+    question: Where is merchant refund authorization checked?
+    primary_repositories: [identity-core, payment-core]
+    secondary_repositories: [merchant-service]
+    expected_relationships: [merchant-service -> identity-core, merchant-service -> payment-core]
+    reason: identity-core handles authorization checks while payment-core handles refund eligibility.

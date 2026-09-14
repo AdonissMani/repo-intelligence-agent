@@ -10,6 +10,20 @@ class IngestionTests(unittest.TestCase):
         repos = ingest_enterprise(ENTERPRISE_REPOS)
         self.assertEqual(len(repos), 15)
 
+    def test_required_metadata_fields_are_present(self):
+        repos = ingest_enterprise(ENTERPRISE_REPOS)
+        for repo in repos:
+            self.assertTrue(repo.name)
+            self.assertTrue(repo.team)
+            self.assertTrue(repo.business_unit)
+            self.assertTrue(repo.domain)
+            self.assertTrue(repo.type)
+
+    def test_discovers_documents(self):
+        repo = next(repo for repo in ingest_enterprise(ENTERPRISE_REPOS) if repo.name == "payment-core")
+        self.assertIn("README.md", repo.documents)
+        self.assertIn("docs/RUNBOOK.md", repo.documents)
+
     def test_extracts_payment_dependencies(self):
         repos = ingest_enterprise(ENTERPRISE_REPOS)
         rels = extract_relationships(ENTERPRISE_REPOS, repos)
