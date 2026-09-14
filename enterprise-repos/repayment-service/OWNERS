@@ -1,0 +1,3 @@
+team: Repayment
+slack: #repayment
+escalation: atlas-repayment-service@example.com

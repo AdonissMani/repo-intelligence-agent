@@ -1,0 +1,2 @@
+PUBLISHES = ['RiskDecisionCalculated']
+SUBSCRIBES = []

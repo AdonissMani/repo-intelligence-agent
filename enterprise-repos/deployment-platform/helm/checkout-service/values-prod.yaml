@@ -1,0 +1,4 @@
+service: checkout-service
+upstreams:
+  payment-core:
+    timeout_ms: 1800

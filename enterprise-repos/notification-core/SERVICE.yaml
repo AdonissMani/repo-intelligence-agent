@@ -1,0 +1,33 @@
+name: notification-core
+team: Notification Platform
+business_unit: Core Platform
+domain: notifications
+type: service
+provides:
+  - email
+  - SMS
+  - push notifications
+  - notification templates
+  - delivery tracking
+apis:
+  - POST /v1/notifications/send
+  - GET /v1/notifications/{id}
+depends_on:
+  - customer-profile
+consumed_by:
+  - identity-core
+  - subscription-service
+  - loan-orchestrator
+  - repayment-service
+publishes:
+  - NotificationSent
+  - NotificationFailed
+subscribes:
+  - PaymentFailed
+  - PaymentRefundRequested
+  - LoanApproved
+  - LoanRejected
+data_owned:
+  - delivery attempts
+  - template versions
+criticality: medium

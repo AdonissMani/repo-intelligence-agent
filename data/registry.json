@@ -1,0 +1,2525 @@
+{
+  "repositories": [
+    {
+      "name": "checkout-service",
+      "team": "Checkout",
+      "business_unit": "Retail Business",
+      "domain": "checkout orchestration",
+      "type": "service",
+      "provides": [
+        "shopping cart checkout",
+        "order creation",
+        "payment orchestration",
+        "promotion validation"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "identity-core",
+        "customer-profile",
+        "payment-core",
+        "fraud-service"
+      ],
+      "consumed_by": [],
+      "publishes": [
+        "CheckoutCompleted",
+        "CheckoutFailed"
+      ],
+      "subscribes": [],
+      "data_owned": [
+        "checkout sessions",
+        "orders"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "POST /v1/checkout",
+        "POST /v1/checkout/{id}/retry"
+      ],
+      "documents": {
+        "README.md": "# checkout-service\n\n    checkout-service is owned by Checkout in Retail Business. It provides shopping cart checkout, order creation, payment orchestration, promotion validation.\n\n    Important caveat: Orchestrates card acceptance but payment-core owns the final payment decision.\n\n    ## Runtime Dependencies\n    - identity-core\n- customer-profile\n- payment-core\n- fraud-service\n\n    ## Public APIs\n    - `POST /v1/checkout`\n- `POST /v1/checkout/{id}/retry`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: checkout orchestration.\n\nThis repository is part of Atlas Commerce Group's Retail Business area. It exposes capabilities around shopping cart checkout, order creation, payment orchestration, promotion validation.\n\nDependencies are called through small clients under `src/checkout_service/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: CheckoutCompleted, CheckoutFailed.\nSubscribes: none.\n",
+        "API.md": "# API\n\n- `POST /v1/checkout`\n- `POST /v1/checkout/{id}/retry`\n",
+        "OWNERS": "team: Checkout\nslack: #checkout\nescalation: atlas-checkout-service@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: checkout sessions, orders.\nFor dependency incidents, inspect identity-core, customer-profile, payment-core, fraud-service before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\ncheckout-service owns checkout orchestration concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "customer-profile",
+      "team": "Customer Platform",
+      "business_unit": "Core Platform",
+      "domain": "customer data",
+      "type": "service",
+      "provides": [
+        "customer profile",
+        "preferences",
+        "contact details",
+        "segmentation metadata"
+      ],
+      "consumes": [],
+      "depends_on": [],
+      "consumed_by": [
+        "checkout-service",
+        "subscription-service",
+        "loan-orchestrator",
+        "notification-core",
+        "fraud-service",
+        "risk-engine",
+        "repayment-service"
+      ],
+      "publishes": [
+        "CustomerProfileUpdated"
+      ],
+      "subscribes": [
+        "UserCreated"
+      ],
+      "data_owned": [
+        "customer contact details",
+        "preferences",
+        "segments"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "GET /v1/customers/{id}",
+        "PATCH /v1/customers/{id}",
+        "GET /v1/customers/{id}/preferences"
+      ],
+      "documents": {
+        "README.md": "# customer-profile\n\n    customer-profile is owned by Customer Platform in Core Platform. It provides customer profile, preferences, contact details, segmentation metadata.\n\n    Important caveat: Owns contact data but not identity verification decisions.\n\n    ## Runtime Dependencies\n    - none\n\n    ## Public APIs\n    - `GET /v1/customers/{id}`\n- `PATCH /v1/customers/{id}`\n- `GET /v1/customers/{id}/preferences`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: customer data.\n\nThis repository is part of Atlas Commerce Group's Core Platform area. It exposes capabilities around customer profile, preferences, contact details, segmentation metadata.\n\nDependencies are called through small clients under `src/customer_profile/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: CustomerProfileUpdated.\nSubscribes: UserCreated.\n",
+        "API.md": "# API\n\n- `GET /v1/customers/{id}`\n- `PATCH /v1/customers/{id}`\n- `GET /v1/customers/{id}/preferences`\n",
+        "OWNERS": "team: Customer Platform\nslack: #customer-platform\nescalation: atlas-customer-profile@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: customer contact details, preferences, segments.\nFor dependency incidents, inspect local logs before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\ncustomer-profile owns customer data concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "deployment-platform",
+      "team": "Developer Platform",
+      "business_unit": "Infrastructure / Developer Platform",
+      "domain": "deployments",
+      "type": "deployment",
+      "provides": [
+        "Helm charts",
+        "deployment configuration",
+        "environment configuration",
+        "rollout policies"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "platform-infra"
+      ],
+      "consumed_by": [
+        "identity-core",
+        "payment-core",
+        "checkout-service",
+        "merchant-service",
+        "subscription-service",
+        "loan-orchestrator",
+        "repayment-service"
+      ],
+      "publishes": [],
+      "subscribes": [],
+      "data_owned": [
+        "deployment templates"
+      ],
+      "criticality": "medium",
+      "apis": [],
+      "documents": {
+        "README.md": "# deployment-platform\n\nOwns Helm charts, deployment configuration, environment configuration, rollout policies for Atlas Commerce Group.\n",
+        "ARCHITECTURE.md": "# Architecture\n\ndeployment-platform supports identity-core, payment-core, checkout-service, merchant-service, subscription-service, loan-orchestrator, repayment-service.\n",
+        "API.md": "# API\n\nInfrastructure repository; no public business API.\n",
+        "OWNERS": "team: Developer Platform\nslack: #developer-platform\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "fraud-service",
+      "team": "Payments Platform",
+      "business_unit": "Core Platform",
+      "domain": "fraud risk",
+      "type": "service",
+      "provides": [
+        "fraud scoring",
+        "transaction risk checks",
+        "fraud decisions"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "customer-profile",
+        "identity-core"
+      ],
+      "consumed_by": [
+        "payment-core",
+        "checkout-service"
+      ],
+      "publishes": [
+        "FraudCheckCompleted"
+      ],
+      "subscribes": [],
+      "data_owned": [
+        "fraud scores",
+        "risk signals"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "POST /v1/fraud/check"
+      ],
+      "documents": {
+        "README.md": "# fraud-service\n\n    fraud-service is owned by Payments Platform in Core Platform. It provides fraud scoring, transaction risk checks, fraud decisions.\n\n    Important caveat: Checkout sometimes calls this directly for pre-screening, which is intentionally duplicated.\n\n    ## Runtime Dependencies\n    - customer-profile\n- identity-core\n\n    ## Public APIs\n    - `POST /v1/fraud/check`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: fraud risk.\n\nThis repository is part of Atlas Commerce Group's Core Platform area. It exposes capabilities around fraud scoring, transaction risk checks, fraud decisions.\n\nDependencies are called through small clients under `src/fraud_service/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: FraudCheckCompleted.\nSubscribes: none.\n",
+        "API.md": "# API\n\n- `POST /v1/fraud/check`\n",
+        "OWNERS": "team: Payments Platform\nslack: #payments-platform\nescalation: atlas-fraud-service@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: fraud scores, risk signals.\nFor dependency incidents, inspect customer-profile, identity-core before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nfraud-service owns fraud risk concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "identity-core",
+      "team": "Identity Platform",
+      "business_unit": "Core Platform",
+      "domain": "identity and access",
+      "type": "service",
+      "provides": [
+        "authentication",
+        "authorization",
+        "token issuance",
+        "service identity"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "customer-profile",
+        "notification-core"
+      ],
+      "consumed_by": [
+        "checkout-service",
+        "merchant-service",
+        "loan-orchestrator",
+        "subscription-service"
+      ],
+      "publishes": [
+        "UserCreated",
+        "IdentityVerified"
+      ],
+      "subscribes": [],
+      "data_owned": [
+        "service credentials",
+        "identity verification status"
+      ],
+      "criticality": "high",
+      "apis": [
+        "POST /v1/auth/token",
+        "GET /v1/users/{id}",
+        "POST /v1/authorization/check"
+      ],
+      "documents": {
+        "README.md": "# identity-core\n\n    identity-core is owned by Identity Platform in Core Platform. It provides authentication, authorization, token issuance, service identity.\n\n    Important caveat: README still calls the service auth-core in a few places after a rename.\n\n    ## Runtime Dependencies\n    - customer-profile\n- notification-core\n\n    ## Public APIs\n    - `POST /v1/auth/token`\n- `GET /v1/users/{id}`\n- `POST /v1/authorization/check`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: identity and access.\n\nThis repository is part of Atlas Commerce Group's Core Platform area. It exposes capabilities around authentication, authorization, token issuance, service identity.\n\nDependencies are called through small clients under `src/identity_core/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: UserCreated, IdentityVerified.\nSubscribes: none.\n",
+        "API.md": "# API\n\n- `POST /v1/auth/token`\n- `GET /v1/users/{id}`\n- `POST /v1/authorization/check`\n",
+        "OWNERS": "team: Identity Platform\nslack: #identity-platform\nescalation: atlas-identity-core@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: service credentials, identity verification status.\nFor dependency incidents, inspect customer-profile, notification-core before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nidentity-core owns identity and access concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "ledger-core",
+      "team": "Finance Platform",
+      "business_unit": "Core Platform",
+      "domain": "ledger and accounting",
+      "type": "service",
+      "provides": [
+        "accounting entries",
+        "payment ledger",
+        "refund reversals",
+        "reconciliation primitives"
+      ],
+      "consumes": [],
+      "depends_on": [],
+      "consumed_by": [
+        "payment-core",
+        "repayment-service",
+        "merchant-service"
+      ],
+      "publishes": [
+        "LedgerEntryPosted",
+        "LedgerReversalPosted"
+      ],
+      "subscribes": [
+        "PaymentAuthorized",
+        "PaymentCaptured",
+        "PaymentRefundRequested"
+      ],
+      "data_owned": [
+        "journal entries",
+        "ledger transactions",
+        "reversals"
+      ],
+      "criticality": "high",
+      "apis": [
+        "POST /v1/ledger/entries",
+        "POST /v1/ledger/reversals",
+        "GET /v1/ledger/transactions/{id}"
+      ],
+      "documents": {
+        "README.md": "# ledger-core\n\n    ledger-core is owned by Finance Platform in Core Platform. It provides accounting entries, payment ledger, refund reversals, reconciliation primitives.\n\n    Important caveat: Uses refund/reversal language but does not decide refund eligibility.\n\n    ## Runtime Dependencies\n    - none\n\n    ## Public APIs\n    - `POST /v1/ledger/entries`\n- `POST /v1/ledger/reversals`\n- `GET /v1/ledger/transactions/{id}`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: ledger and accounting.\n\nThis repository is part of Atlas Commerce Group's Core Platform area. It exposes capabilities around accounting entries, payment ledger, refund reversals, reconciliation primitives.\n\nDependencies are called through small clients under `src/ledger_core/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: LedgerEntryPosted, LedgerReversalPosted.\nSubscribes: PaymentAuthorized, PaymentCaptured, PaymentRefundRequested.\n",
+        "API.md": "# API\n\n- `POST /v1/ledger/entries`\n- `POST /v1/ledger/reversals`\n- `GET /v1/ledger/transactions/{id}`\n",
+        "OWNERS": "team: Finance Platform\nslack: #finance-platform\nescalation: atlas-ledger-core@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: journal entries, ledger transactions, reversals.\nFor dependency incidents, inspect local logs before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nledger-core owns ledger and accounting concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "loan-orchestrator",
+      "team": "Loan Orchestration",
+      "business_unit": "Lending Business",
+      "domain": "loan workflows",
+      "type": "service",
+      "provides": [
+        "loan application workflow",
+        "customer verification",
+        "risk evaluation orchestration",
+        "loan state transitions"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "identity-core",
+        "customer-profile",
+        "risk-engine",
+        "notification-core"
+      ],
+      "consumed_by": [],
+      "publishes": [
+        "LoanApproved",
+        "LoanRejected"
+      ],
+      "subscribes": [
+        "IdentityVerified"
+      ],
+      "data_owned": [
+        "loan applications",
+        "loan workflow state"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "POST /v1/loans/apply",
+        "GET /v1/loans/{id}",
+        "POST /v1/loans/{id}/approve"
+      ],
+      "documents": {
+        "README.md": "# loan-orchestrator\n\n    loan-orchestrator is owned by Loan Orchestration in Lending Business. It provides loan application workflow, customer verification, risk evaluation orchestration, loan state transitions.\n\n    Important caveat: Owns workflow state; risk-engine owns eligibility scoring.\n\n    ## Runtime Dependencies\n    - identity-core\n- customer-profile\n- risk-engine\n- notification-core\n\n    ## Public APIs\n    - `POST /v1/loans/apply`\n- `GET /v1/loans/{id}`\n- `POST /v1/loans/{id}/approve`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: loan workflows.\n\nThis repository is part of Atlas Commerce Group's Lending Business area. It exposes capabilities around loan application workflow, customer verification, risk evaluation orchestration, loan state transitions.\n\nDependencies are called through small clients under `src/loan_orchestrator/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: LoanApproved, LoanRejected.\nSubscribes: IdentityVerified.\n",
+        "API.md": "# API\n\n- `POST /v1/loans/apply`\n- `GET /v1/loans/{id}`\n- `POST /v1/loans/{id}/approve`\n",
+        "OWNERS": "team: Loan Orchestration\nslack: #loan-orchestration\nescalation: atlas-loan-orchestrator@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: loan applications, loan workflow state.\nFor dependency incidents, inspect identity-core, customer-profile, risk-engine, notification-core before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nloan-orchestrator owns loan workflows concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "merchant-service",
+      "team": "Merchant Operations",
+      "business_unit": "Retail Business",
+      "domain": "merchant operations",
+      "type": "service",
+      "provides": [
+        "merchant transaction lookup",
+        "merchant refund initiation",
+        "settlement views"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "payment-core",
+        "ledger-core",
+        "identity-core"
+      ],
+      "consumed_by": [],
+      "publishes": [
+        "MerchantRefundRequested"
+      ],
+      "subscribes": [
+        "PaymentRefundRequested"
+      ],
+      "data_owned": [
+        "merchant cases",
+        "refund initiation audit"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "POST /v1/merchants/{id}/refunds",
+        "GET /v1/merchants/{id}/transactions"
+      ],
+      "documents": {
+        "README.md": "# merchant-service\n\n    merchant-service is owned by Merchant Operations in Retail Business. It provides merchant transaction lookup, merchant refund initiation, settlement views.\n\n    Important caveat: Many docs say merchant refunds, but it initiates rather than decides eligibility.\n\n    ## Runtime Dependencies\n    - payment-core\n- ledger-core\n- identity-core\n\n    ## Public APIs\n    - `POST /v1/merchants/{id}/refunds`\n- `GET /v1/merchants/{id}/transactions`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: merchant operations.\n\nThis repository is part of Atlas Commerce Group's Retail Business area. It exposes capabilities around merchant transaction lookup, merchant refund initiation, settlement views.\n\nDependencies are called through small clients under `src/merchant_service/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: MerchantRefundRequested.\nSubscribes: PaymentRefundRequested.\n",
+        "API.md": "# API\n\n- `POST /v1/merchants/{id}/refunds`\n- `GET /v1/merchants/{id}/transactions`\n",
+        "OWNERS": "team: Merchant Operations\nslack: #merchant-operations\nescalation: atlas-merchant-service@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: merchant cases, refund initiation audit.\nFor dependency incidents, inspect payment-core, ledger-core, identity-core before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nmerchant-service owns merchant operations concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "notification-core",
+      "team": "Notification Platform",
+      "business_unit": "Core Platform",
+      "domain": "notifications",
+      "type": "service",
+      "provides": [
+        "email",
+        "SMS",
+        "push notifications",
+        "notification templates",
+        "delivery tracking"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "customer-profile"
+      ],
+      "consumed_by": [
+        "identity-core",
+        "subscription-service",
+        "loan-orchestrator",
+        "repayment-service"
+      ],
+      "publishes": [
+        "NotificationSent",
+        "NotificationFailed"
+      ],
+      "subscribes": [
+        "PaymentFailed",
+        "PaymentRefundRequested",
+        "LoanApproved",
+        "LoanRejected"
+      ],
+      "data_owned": [
+        "delivery attempts",
+        "template versions"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "POST /v1/notifications/send",
+        "GET /v1/notifications/{id}"
+      ],
+      "documents": {
+        "README.md": "# notification-core\n\n    notification-core is owned by Notification Platform in Core Platform. It provides email, SMS, push notifications, notification templates, delivery tracking.\n\n    Important caveat: Contains payment failure wording but does not detect failures.\n\n    ## Runtime Dependencies\n    - customer-profile\n\n    ## Public APIs\n    - `POST /v1/notifications/send`\n- `GET /v1/notifications/{id}`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: notifications.\n\nThis repository is part of Atlas Commerce Group's Core Platform area. It exposes capabilities around email, SMS, push notifications, notification templates, delivery tracking.\n\nDependencies are called through small clients under `src/notification_core/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: NotificationSent, NotificationFailed.\nSubscribes: PaymentFailed, PaymentRefundRequested, LoanApproved, LoanRejected.\n",
+        "API.md": "# API\n\n- `POST /v1/notifications/send`\n- `GET /v1/notifications/{id}`\n",
+        "OWNERS": "team: Notification Platform\nslack: #notification-platform\nescalation: atlas-notification-core@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: delivery attempts, template versions.\nFor dependency incidents, inspect customer-profile before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nnotification-core owns notifications concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "observability-platform",
+      "team": "Developer Platform",
+      "business_unit": "Infrastructure / Developer Platform",
+      "domain": "observability",
+      "type": "observability",
+      "provides": [
+        "dashboards",
+        "alerts",
+        "logging configuration",
+        "tracing",
+        "SLO definitions"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "deployment-platform"
+      ],
+      "consumed_by": [
+        "payment-core",
+        "checkout-service",
+        "subscription-service",
+        "loan-orchestrator",
+        "repayment-service"
+      ],
+      "publishes": [],
+      "subscribes": [
+        "PaymentFailed",
+        "PaymentRefundRequested",
+        "LoanRejected"
+      ],
+      "data_owned": [
+        "dashboards",
+        "alert definitions",
+        "trace sampling policies"
+      ],
+      "criticality": "medium",
+      "apis": [],
+      "documents": {
+        "README.md": "# observability-platform\n\nOwns dashboards, alerts, logging configuration, tracing, SLO definitions for Atlas Commerce Group.\n",
+        "ARCHITECTURE.md": "# Architecture\n\nobservability-platform supports payment-core, checkout-service, subscription-service, loan-orchestrator, repayment-service.\n",
+        "API.md": "# API\n\nInfrastructure repository; no public business API.\n",
+        "OWNERS": "team: Developer Platform\nslack: #developer-platform\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "payment-core",
+      "team": "Payments Platform",
+      "business_unit": "Core Platform",
+      "domain": "payments",
+      "type": "service",
+      "provides": [
+        "payment authorization",
+        "capture",
+        "refund initiation",
+        "payment status",
+        "payment state transitions"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "fraud-service",
+        "identity-core",
+        "ledger-core"
+      ],
+      "consumed_by": [
+        "checkout-service",
+        "merchant-service",
+        "subscription-service",
+        "repayment-service"
+      ],
+      "publishes": [
+        "PaymentAuthorized",
+        "PaymentCaptured",
+        "PaymentRefundRequested",
+        "PaymentFailed"
+      ],
+      "subscribes": [],
+      "data_owned": [
+        "payment intents",
+        "refund requests",
+        "payment state"
+      ],
+      "criticality": "high",
+      "apis": [
+        "POST /v1/payments/authorize",
+        "POST /v1/payments/{id}/capture",
+        "POST /v1/payments/{id}/refund",
+        "GET /v1/payments/{id}"
+      ],
+      "documents": {
+        "README.md": "# payment-core\n\n    payment-core is owned by Payments Platform in Core Platform. It provides payment authorization, capture, refund initiation, payment status, payment state transitions.\n\n    Important caveat: Refund eligibility lives here; ledger only records the accounting reversal.\n\n    ## Runtime Dependencies\n    - fraud-service\n- identity-core\n- ledger-core\n\n    ## Public APIs\n    - `POST /v1/payments/authorize`\n- `POST /v1/payments/{id}/capture`\n- `POST /v1/payments/{id}/refund`\n- `GET /v1/payments/{id}`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: payments.\n\nThis repository is part of Atlas Commerce Group's Core Platform area. It exposes capabilities around payment authorization, capture, refund initiation, payment status, payment state transitions.\n\nDependencies are called through small clients under `src/payment_core/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: PaymentAuthorized, PaymentCaptured, PaymentRefundRequested, PaymentFailed.\nSubscribes: none.\n",
+        "API.md": "# API\n\n- `POST /v1/payments/authorize`\n- `POST /v1/payments/{id}/capture`\n- `POST /v1/payments/{id}/refund`\n- `GET /v1/payments/{id}`\n",
+        "OWNERS": "team: Payments Platform\nslack: #payments-platform\nescalation: atlas-payment-core@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: payment intents, refund requests, payment state.\nFor dependency incidents, inspect fraud-service, identity-core, ledger-core before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\npayment-core owns payments concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "platform-infra",
+      "team": "Developer Platform / Infrastructure",
+      "business_unit": "Infrastructure / Developer Platform",
+      "domain": "shared infrastructure",
+      "type": "infrastructure",
+      "provides": [
+        "Terraform networking",
+        "managed databases",
+        "queues and topics",
+        "IAM roles"
+      ],
+      "consumes": [],
+      "depends_on": [],
+      "consumed_by": [
+        "identity-core",
+        "payment-core",
+        "checkout-service",
+        "loan-orchestrator",
+        "subscription-service"
+      ],
+      "publishes": [],
+      "subscribes": [],
+      "data_owned": [
+        "infrastructure state"
+      ],
+      "criticality": "medium",
+      "apis": [],
+      "documents": {
+        "README.md": "# platform-infra\n\nOwns Terraform networking, managed databases, queues and topics, IAM roles for Atlas Commerce Group.\n",
+        "ARCHITECTURE.md": "# Architecture\n\nplatform-infra supports identity-core, payment-core, checkout-service, loan-orchestrator, subscription-service.\n",
+        "API.md": "# API\n\nInfrastructure repository; no public business API.\n",
+        "OWNERS": "team: Developer Platform / Infrastructure\nslack: #developer-platform\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "repayment-service",
+      "team": "Repayment",
+      "business_unit": "Lending Business",
+      "domain": "loan repayment",
+      "type": "service",
+      "provides": [
+        "repayment schedules",
+        "payment collection",
+        "failed repayment handling",
+        "ledger integration"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "payment-core",
+        "ledger-core",
+        "customer-profile",
+        "notification-core"
+      ],
+      "consumed_by": [],
+      "publishes": [
+        "RepaymentCollected",
+        "RepaymentFailed"
+      ],
+      "subscribes": [
+        "PaymentFailed"
+      ],
+      "data_owned": [
+        "repayment schedules",
+        "collection attempts"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "POST /v1/repayments/collect",
+        "GET /v1/repayments/{id}/schedule"
+      ],
+      "documents": {
+        "README.md": "# repayment-service\n\n    repayment-service is owned by Repayment in Lending Business. It provides repayment schedules, payment collection, failed repayment handling, ledger integration.\n\n    Important caveat: Overlaps with payment failure terms but owns repayment handling only.\n\n    ## Runtime Dependencies\n    - payment-core\n- ledger-core\n- customer-profile\n- notification-core\n\n    ## Public APIs\n    - `POST /v1/repayments/collect`\n- `GET /v1/repayments/{id}/schedule`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: loan repayment.\n\nThis repository is part of Atlas Commerce Group's Lending Business area. It exposes capabilities around repayment schedules, payment collection, failed repayment handling, ledger integration.\n\nDependencies are called through small clients under `src/repayment_service/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: RepaymentCollected, RepaymentFailed.\nSubscribes: PaymentFailed.\n",
+        "API.md": "# API\n\n- `POST /v1/repayments/collect`\n- `GET /v1/repayments/{id}/schedule`\n",
+        "OWNERS": "team: Repayment\nslack: #repayment\nescalation: atlas-repayment-service@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: repayment schedules, collection attempts.\nFor dependency incidents, inspect payment-core, ledger-core, customer-profile, notification-core before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nrepayment-service owns loan repayment concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "risk-engine",
+      "team": "Risk Engine",
+      "business_unit": "Lending Business",
+      "domain": "credit decisioning",
+      "type": "service",
+      "provides": [
+        "credit scoring",
+        "loan eligibility rules",
+        "decisioning inputs"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "customer-profile",
+        "identity-core"
+      ],
+      "consumed_by": [
+        "loan-orchestrator"
+      ],
+      "publishes": [
+        "RiskDecisionCalculated"
+      ],
+      "subscribes": [],
+      "data_owned": [
+        "risk decisions",
+        "score explanations"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "POST /v1/risk/loan-score"
+      ],
+      "documents": {
+        "README.md": "# risk-engine\n\n    risk-engine is owned by Risk Engine in Lending Business. It provides credit scoring, loan eligibility rules, decisioning inputs.\n\n    Important caveat: Best answer for loan eligibility questions even though loan-orchestrator exposes the public loan API.\n\n    ## Runtime Dependencies\n    - customer-profile\n- identity-core\n\n    ## Public APIs\n    - `POST /v1/risk/loan-score`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: credit decisioning.\n\nThis repository is part of Atlas Commerce Group's Lending Business area. It exposes capabilities around credit scoring, loan eligibility rules, decisioning inputs.\n\nDependencies are called through small clients under `src/risk_engine/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: RiskDecisionCalculated.\nSubscribes: none.\n",
+        "API.md": "# API\n\n- `POST /v1/risk/loan-score`\n",
+        "OWNERS": "team: Risk Engine\nslack: #risk-engine\nescalation: atlas-risk-engine@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: risk decisions, score explanations.\nFor dependency incidents, inspect customer-profile, identity-core before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nrisk-engine owns credit decisioning concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    },
+    {
+      "name": "subscription-service",
+      "team": "Subscription Commerce",
+      "business_unit": "Retail Business",
+      "domain": "recurring commerce",
+      "type": "service",
+      "provides": [
+        "recurring billing",
+        "subscription lifecycle",
+        "scheduled charges",
+        "failed-payment retries"
+      ],
+      "consumes": [],
+      "depends_on": [
+        "payment-core",
+        "customer-profile",
+        "notification-core"
+      ],
+      "consumed_by": [],
+      "publishes": [
+        "SubscriptionSuspended",
+        "SubscriptionRenewed"
+      ],
+      "subscribes": [
+        "PaymentFailed"
+      ],
+      "data_owned": [
+        "subscriptions",
+        "billing schedules",
+        "retry state"
+      ],
+      "criticality": "medium",
+      "apis": [
+        "POST /v1/subscriptions",
+        "POST /v1/subscriptions/{id}/retry"
+      ],
+      "documents": {
+        "README.md": "# subscription-service\n\n    subscription-service is owned by Subscription Commerce in Retail Business. It provides recurring billing, subscription lifecycle, scheduled charges, failed-payment retries.\n\n    Important caveat: Retry behavior here is subscription billing retry, not payment authorization retry.\n\n    ## Runtime Dependencies\n    - payment-core\n- customer-profile\n- notification-core\n\n    ## Public APIs\n    - `POST /v1/subscriptions`\n- `POST /v1/subscriptions/{id}/retry`\n",
+        "ARCHITECTURE.md": "# Architecture\n\nDomain: recurring commerce.\n\nThis repository is part of Atlas Commerce Group's Retail Business area. It exposes capabilities around recurring billing, subscription lifecycle, scheduled charges, failed-payment retries.\n\nDependencies are called through small clients under `src/subscription_service/clients` when present. Event names are intentionally present in code and docs so topology extraction can discover them.\n\nPublishes: SubscriptionSuspended, SubscriptionRenewed.\nSubscribes: PaymentFailed.\n",
+        "API.md": "# API\n\n- `POST /v1/subscriptions`\n- `POST /v1/subscriptions/{id}/retry`\n",
+        "OWNERS": "team: Subscription Commerce\nslack: #subscription-commerce\nescalation: atlas-subscription-service@example.com\n",
+        "docs/RUNBOOK.md": "# Runbook\n\nStart investigations by checking owned data: subscriptions, billing schedules, retry state.\nFor dependency incidents, inspect payment-core, customer-profile, notification-core before escalating.\n",
+        "docs/adr/0001-service-boundaries.md": "# ADR 0001: Service Boundary\n\nsubscription-service owns recurring commerce concerns. Similar terms may appear in neighboring repositories, but ownership follows the data and decisions listed in SERVICE.yaml.\n"
+      },
+      "evidence": []
+    }
+  ],
+  "relationships": [
+    {
+      "source": "checkout-service",
+      "type": "DEPENDS_ON",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "checkout-service",
+      "type": "DEPENDS_ON",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "checkout-service",
+      "type": "DEPENDS_ON",
+      "target": "payment-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "checkout-service",
+      "type": "DEPENDS_ON",
+      "target": "fraud-service",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "checkout-service",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/checkout",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "checkout-service",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/checkout/{id}/retry",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "checkout-service",
+      "type": "PRODUCES_EVENT",
+      "target": "CheckoutCompleted",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "checkout-service",
+      "type": "PRODUCES_EVENT",
+      "target": "CheckoutFailed",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "checkout-service",
+      "type": "OWNED_BY",
+      "target": "Checkout",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "checkout-service",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Retail Business",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/checkout_service/clients/payment_client.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_API",
+      "target": "POST /v1/payments/authorize",
+      "evidence": "src/checkout_service/clients/payment_client.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/checkout_service/config/settings.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/checkout_service/config/settings.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/checkout_service/config/settings.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "fraud-service",
+      "evidence": "src/checkout_service/config/settings.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_EVENT",
+      "target": "CheckoutCompleted",
+      "evidence": "src/checkout_service/config/settings.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_EVENT",
+      "target": "CheckoutFailed",
+      "evidence": "src/checkout_service/config/settings.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_EVENT",
+      "target": "CheckoutCompleted",
+      "evidence": "src/checkout_service/events/events.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_EVENT",
+      "target": "CheckoutFailed",
+      "evidence": "src/checkout_service/events/events.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/checkout_service/services/checkout_orchestrator.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/checkout_service/services/checkout_orchestrator.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/checkout_service/services/checkout_orchestrator.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "fraud-service",
+      "evidence": "src/checkout_service/services/checkout_orchestrator.py"
+    },
+    {
+      "source": "checkout-service",
+      "type": "CONSUMES",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "subscription-service",
+      "type": "CONSUMES",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "CONSUMES",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "notification-core",
+      "type": "CONSUMES",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "fraud-service",
+      "type": "CONSUMES",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "risk-engine",
+      "type": "CONSUMES",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "repayment-service",
+      "type": "CONSUMES",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "customer-profile",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/customers/{id}",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "customer-profile",
+      "type": "EXPOSES_API",
+      "target": "PATCH /v1/customers/{id}",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "customer-profile",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/customers/{id}/preferences",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "customer-profile",
+      "type": "PRODUCES_EVENT",
+      "target": "CustomerProfileUpdated",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "customer-profile",
+      "type": "CONSUMES_EVENT",
+      "target": "UserCreated",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "customer-profile",
+      "type": "OWNED_BY",
+      "target": "Customer Platform",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "customer-profile",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Core Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "customer-profile",
+      "type": "REFERENCES_EVENT",
+      "target": "UserCreated",
+      "evidence": "src/customer_profile/config/settings.py"
+    },
+    {
+      "source": "customer-profile",
+      "type": "REFERENCES_EVENT",
+      "target": "UserCreated",
+      "evidence": "src/customer_profile/events/events.py"
+    },
+    {
+      "source": "customer-profile",
+      "type": "REFERENCES_EVENT",
+      "target": "UserCreated",
+      "evidence": "src/customer_profile/events/handlers.py"
+    },
+    {
+      "source": "deployment-platform",
+      "type": "DEPENDS_ON",
+      "target": "platform-infra",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "identity-core",
+      "type": "CONSUMES",
+      "target": "deployment-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "payment-core",
+      "type": "CONSUMES",
+      "target": "deployment-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "checkout-service",
+      "type": "CONSUMES",
+      "target": "deployment-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "merchant-service",
+      "type": "CONSUMES",
+      "target": "deployment-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "subscription-service",
+      "type": "CONSUMES",
+      "target": "deployment-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "CONSUMES",
+      "target": "deployment-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "repayment-service",
+      "type": "CONSUMES",
+      "target": "deployment-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "deployment-platform",
+      "type": "OWNED_BY",
+      "target": "Developer Platform",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "deployment-platform",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Infrastructure / Developer Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "fraud-service",
+      "type": "DEPENDS_ON",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "fraud-service",
+      "type": "DEPENDS_ON",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "payment-core",
+      "type": "CONSUMES",
+      "target": "fraud-service",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "checkout-service",
+      "type": "CONSUMES",
+      "target": "fraud-service",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "fraud-service",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/fraud/check",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "fraud-service",
+      "type": "PRODUCES_EVENT",
+      "target": "FraudCheckCompleted",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "fraud-service",
+      "type": "OWNED_BY",
+      "target": "Payments Platform",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "fraud-service",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Core Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "fraud-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/fraud_service/clients/customer_profile_client.py"
+    },
+    {
+      "source": "fraud-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/fraud_service/clients/identity_client.py"
+    },
+    {
+      "source": "fraud-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/fraud_service/config/settings.py"
+    },
+    {
+      "source": "fraud-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/fraud_service/config/settings.py"
+    },
+    {
+      "source": "fraud-service",
+      "type": "REFERENCES_EVENT",
+      "target": "FraudCheckCompleted",
+      "evidence": "src/fraud_service/config/settings.py"
+    },
+    {
+      "source": "fraud-service",
+      "type": "REFERENCES_EVENT",
+      "target": "FraudCheckCompleted",
+      "evidence": "src/fraud_service/events/events.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "DEPENDS_ON",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "identity-core",
+      "type": "DEPENDS_ON",
+      "target": "notification-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "checkout-service",
+      "type": "CONSUMES",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "merchant-service",
+      "type": "CONSUMES",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "CONSUMES",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "subscription-service",
+      "type": "CONSUMES",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "identity-core",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/auth/token",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "identity-core",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/users/{id}",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "identity-core",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/authorization/check",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "identity-core",
+      "type": "PRODUCES_EVENT",
+      "target": "UserCreated",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "identity-core",
+      "type": "PRODUCES_EVENT",
+      "target": "IdentityVerified",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "identity-core",
+      "type": "OWNED_BY",
+      "target": "Identity Platform",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "identity-core",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Core Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "notification-core",
+      "evidence": "src/identity_core/clients/notification_client.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_EVENT",
+      "target": "IdentityVerified",
+      "evidence": "src/identity_core/clients/notification_client.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/identity_core/clients/customer_profile_client.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_API",
+      "target": "GET /v1/customers/{id}",
+      "evidence": "src/identity_core/clients/customer_profile_client.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/identity_core/config/settings.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "notification-core",
+      "evidence": "src/identity_core/config/settings.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_EVENT",
+      "target": "UserCreated",
+      "evidence": "src/identity_core/config/settings.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_EVENT",
+      "target": "IdentityVerified",
+      "evidence": "src/identity_core/config/settings.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_EVENT",
+      "target": "UserCreated",
+      "evidence": "src/identity_core/events/events.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "REFERENCES_EVENT",
+      "target": "IdentityVerified",
+      "evidence": "src/identity_core/events/events.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "CONSUMES",
+      "target": "ledger-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "repayment-service",
+      "type": "CONSUMES",
+      "target": "ledger-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "merchant-service",
+      "type": "CONSUMES",
+      "target": "ledger-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "ledger-core",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/ledger/entries",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "ledger-core",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/ledger/reversals",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "ledger-core",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/ledger/transactions/{id}",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "ledger-core",
+      "type": "PRODUCES_EVENT",
+      "target": "LedgerEntryPosted",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "ledger-core",
+      "type": "PRODUCES_EVENT",
+      "target": "LedgerReversalPosted",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "ledger-core",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentAuthorized",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "ledger-core",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentCaptured",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "ledger-core",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "ledger-core",
+      "type": "OWNED_BY",
+      "target": "Finance Platform",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "ledger-core",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Core Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "LedgerEntryPosted",
+      "evidence": "src/ledger_core/config/settings.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "LedgerReversalPosted",
+      "evidence": "src/ledger_core/config/settings.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentAuthorized",
+      "evidence": "src/ledger_core/config/settings.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentCaptured",
+      "evidence": "src/ledger_core/config/settings.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/ledger_core/config/settings.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentCaptured",
+      "evidence": "src/ledger_core/events/payment_event_recorder.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/ledger_core/events/payment_event_recorder.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "LedgerEntryPosted",
+      "evidence": "src/ledger_core/events/events.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "LedgerReversalPosted",
+      "evidence": "src/ledger_core/events/events.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentAuthorized",
+      "evidence": "src/ledger_core/events/events.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentCaptured",
+      "evidence": "src/ledger_core/events/events.py"
+    },
+    {
+      "source": "ledger-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/ledger_core/events/events.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "DEPENDS_ON",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "DEPENDS_ON",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "DEPENDS_ON",
+      "target": "risk-engine",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "DEPENDS_ON",
+      "target": "notification-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/loans/apply",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/loans/{id}",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/loans/{id}/approve",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "PRODUCES_EVENT",
+      "target": "LoanApproved",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "PRODUCES_EVENT",
+      "target": "LoanRejected",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "CONSUMES_EVENT",
+      "target": "IdentityVerified",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "OWNED_BY",
+      "target": "Loan Orchestration",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Lending Business",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_SERVICE",
+      "target": "risk-engine",
+      "evidence": "src/loan_orchestrator/clients/risk_client.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_API",
+      "target": "POST /v1/risk/loan-score",
+      "evidence": "src/loan_orchestrator/clients/risk_client.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/loan_orchestrator/config/settings.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/loan_orchestrator/config/settings.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_SERVICE",
+      "target": "risk-engine",
+      "evidence": "src/loan_orchestrator/config/settings.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_SERVICE",
+      "target": "notification-core",
+      "evidence": "src/loan_orchestrator/config/settings.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_EVENT",
+      "target": "LoanApproved",
+      "evidence": "src/loan_orchestrator/config/settings.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_EVENT",
+      "target": "LoanRejected",
+      "evidence": "src/loan_orchestrator/config/settings.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_EVENT",
+      "target": "IdentityVerified",
+      "evidence": "src/loan_orchestrator/config/settings.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_EVENT",
+      "target": "LoanApproved",
+      "evidence": "src/loan_orchestrator/events/events.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_EVENT",
+      "target": "LoanRejected",
+      "evidence": "src/loan_orchestrator/events/events.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_EVENT",
+      "target": "IdentityVerified",
+      "evidence": "src/loan_orchestrator/events/events.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/loan_orchestrator/services/application_workflow.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/loan_orchestrator/services/application_workflow.py"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "REFERENCES_SERVICE",
+      "target": "risk-engine",
+      "evidence": "src/loan_orchestrator/services/application_workflow.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "DEPENDS_ON",
+      "target": "payment-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "merchant-service",
+      "type": "DEPENDS_ON",
+      "target": "ledger-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "merchant-service",
+      "type": "DEPENDS_ON",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "merchant-service",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/merchants/{id}/refunds",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "merchant-service",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/merchants/{id}/transactions",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "merchant-service",
+      "type": "PRODUCES_EVENT",
+      "target": "MerchantRefundRequested",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "merchant-service",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "merchant-service",
+      "type": "OWNED_BY",
+      "target": "Merchant Operations",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "merchant-service",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Retail Business",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/merchant_service/clients/payment_client.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_API",
+      "target": "POST /v1/payments/{id}/refund",
+      "evidence": "src/merchant_service/clients/payment_client.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/merchant_service/config/settings.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "ledger-core",
+      "evidence": "src/merchant_service/config/settings.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/merchant_service/config/settings.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_EVENT",
+      "target": "MerchantRefundRequested",
+      "evidence": "src/merchant_service/config/settings.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/merchant_service/config/settings.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_EVENT",
+      "target": "MerchantRefundRequested",
+      "evidence": "src/merchant_service/events/events.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/merchant_service/events/events.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/merchant_service/services/refund_case_service.py"
+    },
+    {
+      "source": "merchant-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "ledger-core",
+      "evidence": "src/merchant_service/services/refund_case_service.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "DEPENDS_ON",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "identity-core",
+      "type": "CONSUMES",
+      "target": "notification-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "subscription-service",
+      "type": "CONSUMES",
+      "target": "notification-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "CONSUMES",
+      "target": "notification-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "repayment-service",
+      "type": "CONSUMES",
+      "target": "notification-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "notification-core",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/notifications/send",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "notification-core",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/notifications/{id}",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "notification-core",
+      "type": "PRODUCES_EVENT",
+      "target": "NotificationSent",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "notification-core",
+      "type": "PRODUCES_EVENT",
+      "target": "NotificationFailed",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "notification-core",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "notification-core",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "notification-core",
+      "type": "CONSUMES_EVENT",
+      "target": "LoanApproved",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "notification-core",
+      "type": "CONSUMES_EVENT",
+      "target": "LoanRejected",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "notification-core",
+      "type": "OWNED_BY",
+      "target": "Notification Platform",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "notification-core",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Core Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/notification_core/config/settings.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "NotificationFailed",
+      "evidence": "src/notification_core/config/settings.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/notification_core/config/settings.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/notification_core/config/settings.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "LoanApproved",
+      "evidence": "src/notification_core/config/settings.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "LoanRejected",
+      "evidence": "src/notification_core/config/settings.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "NotificationFailed",
+      "evidence": "src/notification_core/events/events.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/notification_core/events/events.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/notification_core/events/events.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "LoanApproved",
+      "evidence": "src/notification_core/events/events.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "LoanRejected",
+      "evidence": "src/notification_core/events/events.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/notification_core/events/payment_handlers.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/notification_core/events/payment_handlers.py"
+    },
+    {
+      "source": "notification-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/notification_core/events/payment_handlers.py"
+    },
+    {
+      "source": "observability-platform",
+      "type": "DEPENDS_ON",
+      "target": "deployment-platform",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "payment-core",
+      "type": "CONSUMES",
+      "target": "observability-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "checkout-service",
+      "type": "CONSUMES",
+      "target": "observability-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "subscription-service",
+      "type": "CONSUMES",
+      "target": "observability-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "CONSUMES",
+      "target": "observability-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "repayment-service",
+      "type": "CONSUMES",
+      "target": "observability-platform",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "observability-platform",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "observability-platform",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "observability-platform",
+      "type": "CONSUMES_EVENT",
+      "target": "LoanRejected",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "observability-platform",
+      "type": "OWNED_BY",
+      "target": "Developer Platform",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "observability-platform",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Infrastructure / Developer Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "observability-platform",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "alerts/payment-timeouts.yaml"
+    },
+    {
+      "source": "payment-core",
+      "type": "DEPENDS_ON",
+      "target": "fraud-service",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "payment-core",
+      "type": "DEPENDS_ON",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "payment-core",
+      "type": "DEPENDS_ON",
+      "target": "ledger-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "checkout-service",
+      "type": "CONSUMES",
+      "target": "payment-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "merchant-service",
+      "type": "CONSUMES",
+      "target": "payment-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "subscription-service",
+      "type": "CONSUMES",
+      "target": "payment-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "repayment-service",
+      "type": "CONSUMES",
+      "target": "payment-core",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "payment-core",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/payments/authorize",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "payment-core",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/payments/{id}/capture",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "payment-core",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/payments/{id}/refund",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "payment-core",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/payments/{id}",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "payment-core",
+      "type": "PRODUCES_EVENT",
+      "target": "PaymentAuthorized",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "payment-core",
+      "type": "PRODUCES_EVENT",
+      "target": "PaymentCaptured",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "payment-core",
+      "type": "PRODUCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "payment-core",
+      "type": "PRODUCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "payment-core",
+      "type": "OWNED_BY",
+      "target": "Payments Platform",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "payment-core",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Core Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "fraud-service",
+      "evidence": "src/payment_core/config/settings.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/payment_core/config/settings.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "ledger-core",
+      "evidence": "src/payment_core/config/settings.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentAuthorized",
+      "evidence": "src/payment_core/config/settings.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentCaptured",
+      "evidence": "src/payment_core/config/settings.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/payment_core/config/settings.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/payment_core/config/settings.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentAuthorized",
+      "evidence": "src/payment_core/events/events.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentCaptured",
+      "evidence": "src/payment_core/events/events.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/payment_core/events/events.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/payment_core/events/events.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "src/payment_core/payments/refunds/workflow.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "ledger-core",
+      "evidence": "src/payment_core/payments/refunds/eligibility.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "fraud-service",
+      "evidence": "src/payment_core/payments/authorization/authorizer.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/payment_core/payments/authorization/authorizer.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_SERVICE",
+      "target": "fraud-service",
+      "evidence": "src/payment_core/payments/risk/fraud_client.py"
+    },
+    {
+      "source": "payment-core",
+      "type": "REFERENCES_API",
+      "target": "POST /v1/fraud/check",
+      "evidence": "src/payment_core/payments/risk/fraud_client.py"
+    },
+    {
+      "source": "identity-core",
+      "type": "CONSUMES",
+      "target": "platform-infra",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "payment-core",
+      "type": "CONSUMES",
+      "target": "platform-infra",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "checkout-service",
+      "type": "CONSUMES",
+      "target": "platform-infra",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "CONSUMES",
+      "target": "platform-infra",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "subscription-service",
+      "type": "CONSUMES",
+      "target": "platform-infra",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "platform-infra",
+      "type": "OWNED_BY",
+      "target": "Developer Platform / Infrastructure",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "platform-infra",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Infrastructure / Developer Platform",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "platform-infra",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "terraform/iam/service_roles.tf"
+    },
+    {
+      "source": "platform-infra",
+      "type": "REFERENCES_SERVICE",
+      "target": "checkout-service",
+      "evidence": "terraform/iam/service_roles.tf"
+    },
+    {
+      "source": "platform-infra",
+      "type": "REFERENCES_SERVICE",
+      "target": "loan-orchestrator",
+      "evidence": "terraform/iam/service_roles.tf"
+    },
+    {
+      "source": "platform-infra",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "terraform/messaging/payment_events.tf"
+    },
+    {
+      "source": "platform-infra",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentRefundRequested",
+      "evidence": "terraform/messaging/payment_events.tf"
+    },
+    {
+      "source": "repayment-service",
+      "type": "DEPENDS_ON",
+      "target": "payment-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "repayment-service",
+      "type": "DEPENDS_ON",
+      "target": "ledger-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "repayment-service",
+      "type": "DEPENDS_ON",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "repayment-service",
+      "type": "DEPENDS_ON",
+      "target": "notification-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "repayment-service",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/repayments/collect",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "repayment-service",
+      "type": "EXPOSES_API",
+      "target": "GET /v1/repayments/{id}/schedule",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "repayment-service",
+      "type": "PRODUCES_EVENT",
+      "target": "RepaymentCollected",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "repayment-service",
+      "type": "PRODUCES_EVENT",
+      "target": "RepaymentFailed",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "repayment-service",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "repayment-service",
+      "type": "OWNED_BY",
+      "target": "Repayment",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "repayment-service",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Lending Business",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/repayment_service/config/settings.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "ledger-core",
+      "evidence": "src/repayment_service/config/settings.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/repayment_service/config/settings.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "notification-core",
+      "evidence": "src/repayment_service/config/settings.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_EVENT",
+      "target": "RepaymentCollected",
+      "evidence": "src/repayment_service/config/settings.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_EVENT",
+      "target": "RepaymentFailed",
+      "evidence": "src/repayment_service/config/settings.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/repayment_service/config/settings.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_EVENT",
+      "target": "RepaymentCollected",
+      "evidence": "src/repayment_service/events/events.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_EVENT",
+      "target": "RepaymentFailed",
+      "evidence": "src/repayment_service/events/events.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/repayment_service/events/events.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/repayment_service/events/payment_failed_handler.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/repayment_service/services/collection_service.py"
+    },
+    {
+      "source": "repayment-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "ledger-core",
+      "evidence": "src/repayment_service/services/collection_service.py"
+    },
+    {
+      "source": "risk-engine",
+      "type": "DEPENDS_ON",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "risk-engine",
+      "type": "DEPENDS_ON",
+      "target": "identity-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "loan-orchestrator",
+      "type": "CONSUMES",
+      "target": "risk-engine",
+      "evidence": "SERVICE.yaml consumed_by"
+    },
+    {
+      "source": "risk-engine",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/risk/loan-score",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "risk-engine",
+      "type": "PRODUCES_EVENT",
+      "target": "RiskDecisionCalculated",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "risk-engine",
+      "type": "OWNED_BY",
+      "target": "Risk Engine",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "risk-engine",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Lending Business",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "risk-engine",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/risk_engine/clients/customer_profile_client.py"
+    },
+    {
+      "source": "risk-engine",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/risk_engine/config/settings.py"
+    },
+    {
+      "source": "risk-engine",
+      "type": "REFERENCES_SERVICE",
+      "target": "identity-core",
+      "evidence": "src/risk_engine/config/settings.py"
+    },
+    {
+      "source": "risk-engine",
+      "type": "REFERENCES_EVENT",
+      "target": "RiskDecisionCalculated",
+      "evidence": "src/risk_engine/config/settings.py"
+    },
+    {
+      "source": "risk-engine",
+      "type": "REFERENCES_EVENT",
+      "target": "RiskDecisionCalculated",
+      "evidence": "src/risk_engine/events/events.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "DEPENDS_ON",
+      "target": "payment-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "subscription-service",
+      "type": "DEPENDS_ON",
+      "target": "customer-profile",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "subscription-service",
+      "type": "DEPENDS_ON",
+      "target": "notification-core",
+      "evidence": "SERVICE.yaml depends_on"
+    },
+    {
+      "source": "subscription-service",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/subscriptions",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "subscription-service",
+      "type": "EXPOSES_API",
+      "target": "POST /v1/subscriptions/{id}/retry",
+      "evidence": "SERVICE.yaml apis"
+    },
+    {
+      "source": "subscription-service",
+      "type": "PRODUCES_EVENT",
+      "target": "SubscriptionSuspended",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "subscription-service",
+      "type": "PRODUCES_EVENT",
+      "target": "SubscriptionRenewed",
+      "evidence": "SERVICE.yaml publishes"
+    },
+    {
+      "source": "subscription-service",
+      "type": "CONSUMES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "SERVICE.yaml subscribes"
+    },
+    {
+      "source": "subscription-service",
+      "type": "OWNED_BY",
+      "target": "Subscription Commerce",
+      "evidence": "SERVICE.yaml team"
+    },
+    {
+      "source": "subscription-service",
+      "type": "IN_BUSINESS_UNIT",
+      "target": "Retail Business",
+      "evidence": "SERVICE.yaml business_unit"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/subscription_service/clients/payment_client.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_API",
+      "target": "POST /v1/payments/authorize",
+      "evidence": "src/subscription_service/clients/payment_client.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "payment-core",
+      "evidence": "src/subscription_service/config/settings.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "customer-profile",
+      "evidence": "src/subscription_service/config/settings.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "notification-core",
+      "evidence": "src/subscription_service/config/settings.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_EVENT",
+      "target": "SubscriptionSuspended",
+      "evidence": "src/subscription_service/config/settings.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_EVENT",
+      "target": "SubscriptionRenewed",
+      "evidence": "src/subscription_service/config/settings.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/subscription_service/config/settings.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_EVENT",
+      "target": "SubscriptionSuspended",
+      "evidence": "src/subscription_service/events/events.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_EVENT",
+      "target": "SubscriptionRenewed",
+      "evidence": "src/subscription_service/events/events.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/subscription_service/events/events.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_SERVICE",
+      "target": "notification-core",
+      "evidence": "src/subscription_service/events/payment_failed_handler.py"
+    },
+    {
+      "source": "subscription-service",
+      "type": "REFERENCES_EVENT",
+      "target": "PaymentFailed",
+      "evidence": "src/subscription_service/events/payment_failed_handler.py"
+    }
+  ]
+}

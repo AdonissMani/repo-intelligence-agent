@@ -1,0 +1,5 @@
+groups:
+- name: payment-timeouts
+  rules:
+  - alert: PaymentCoreTimeoutsHigh
+    expr: rate(http_client_timeout_total{service="payment-core"}[5m]) > 0.05

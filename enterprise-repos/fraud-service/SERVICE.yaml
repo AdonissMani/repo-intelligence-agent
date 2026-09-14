@@ -1,0 +1,24 @@
+name: fraud-service
+team: Payments Platform
+business_unit: Core Platform
+domain: fraud risk
+type: service
+provides:
+  - fraud scoring
+  - transaction risk checks
+  - fraud decisions
+apis:
+  - POST /v1/fraud/check
+depends_on:
+  - customer-profile
+  - identity-core
+consumed_by:
+  - payment-core
+  - checkout-service
+publishes:
+  - FraudCheckCompleted
+subscribes: []
+data_owned:
+  - fraud scores
+  - risk signals
+criticality: medium

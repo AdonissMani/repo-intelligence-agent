@@ -1,0 +1,4 @@
+[project]
+name = "fraud-service"
+version = "0.1.0"
+dependencies = ["fastapi"]

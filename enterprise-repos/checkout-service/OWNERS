@@ -1,0 +1,3 @@
+team: Checkout
+slack: #checkout
+escalation: atlas-checkout-service@example.com

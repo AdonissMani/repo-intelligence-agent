@@ -1,0 +1,36 @@
+name: payment-core
+team: Payments Platform
+business_unit: Core Platform
+domain: payments
+type: service
+provides:
+  - payment authorization
+  - capture
+  - refund initiation
+  - payment status
+  - payment state transitions
+apis:
+  - POST /v1/payments/authorize
+  - POST /v1/payments/{id}/capture
+  - POST /v1/payments/{id}/refund
+  - GET /v1/payments/{id}
+depends_on:
+  - fraud-service
+  - identity-core
+  - ledger-core
+consumed_by:
+  - checkout-service
+  - merchant-service
+  - subscription-service
+  - repayment-service
+publishes:
+  - PaymentAuthorized
+  - PaymentCaptured
+  - PaymentRefundRequested
+  - PaymentFailed
+subscribes: []
+data_owned:
+  - payment intents
+  - refund requests
+  - payment state
+criticality: high

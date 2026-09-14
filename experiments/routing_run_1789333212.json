@@ -1,0 +1,2300 @@
+[
+  {
+    "question": "Where is refund eligibility decided?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "payment-core",
+      "merchant-service",
+      "ledger-core",
+      "risk-engine",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "merchant-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.2,
+    "tokens": 5,
+    "success": true
+  },
+  {
+    "question": "Which repository owns customer contact preferences?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "customer-profile",
+      "loan-orchestrator",
+      "fraud-service",
+      "repayment-service",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.17,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where are service-to-service token issuance rules implemented?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "identity-core",
+      "checkout-service",
+      "fraud-service",
+      "subscription-service",
+      "deployment-platform"
+    ],
+    "gold_repositories": [
+      "identity-core"
+    ],
+    "latency_ms": 0.16,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Which service owns accounting reversals for refunds?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "ledger-core",
+      "deployment-platform",
+      "merchant-service",
+      "checkout-service",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "ledger-core",
+      "payment-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Where is the checkout payment flow orchestrated?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "checkout-service",
+      "payment-core",
+      "subscription-service",
+      "repayment-service",
+      "merchant-service"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Where does checkout decide whether a card payment is accepted?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "checkout-service",
+      "payment-core",
+      "subscription-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "checkout-service",
+      "fraud-service"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 10,
+    "success": false
+  },
+  {
+    "question": "Which repo coordinates customer verification and risk evaluation for loan applications?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "customer-profile",
+      "fraud-service",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "identity-core",
+      "risk-engine",
+      "customer-profile"
+    ],
+    "latency_ms": 0.16,
+    "tokens": 11,
+    "success": true
+  },
+  {
+    "question": "What systems are involved when a merchant requests a refund?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 10,
+    "success": true
+  },
+  {
+    "question": "What happens after a recurring subscription payment fails?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "subscription-service",
+      "payment-core",
+      "checkout-service",
+      "repayment-service",
+      "observability-platform"
+    ],
+    "gold_repositories": [
+      "subscription-service",
+      "payment-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Why was a loan application rejected?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "repayment-service",
+      "observability-platform",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "risk-engine",
+      "loan-orchestrator",
+      "customer-profile"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": false
+  },
+  {
+    "question": "Which repositories participate in repayment collection?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "repayment-service",
+      "fraud-service",
+      "identity-core",
+      "notification-core",
+      "risk-engine"
+    ],
+    "gold_repositories": [
+      "repayment-service",
+      "payment-core",
+      "ledger-core",
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where is the production timeout for payment-core configured?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "payment-core",
+      "repayment-service",
+      "subscription-service",
+      "checkout-service",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "deployment-platform",
+      "payment-core",
+      "observability-platform"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "Where are payment event topics provisioned?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "payment-core",
+      "subscription-service",
+      "checkout-service",
+      "repayment-service",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "platform-infra",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": false
+  },
+  {
+    "question": "Which repo contains Kubernetes deployment templates for Atlas services?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "deployment-platform",
+      "notification-core",
+      "observability-platform",
+      "fraud-service",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "deployment-platform",
+      "platform-infra"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Where should I investigate repeated payment timeout failures?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "payment-core",
+      "checkout-service",
+      "subscription-service",
+      "repayment-service",
+      "merchant-service"
+    ],
+    "gold_repositories": [
+      "observability-platform",
+      "payment-core",
+      "deployment-platform"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 7,
+    "success": false
+  },
+  {
+    "question": "Which repository defines alerts for PaymentFailed spikes?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "observability-platform",
+      "platform-infra",
+      "notification-core",
+      "deployment-platform",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "observability-platform",
+      "notification-core",
+      "payment-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Which service decides whether a loan application is eligible?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "fraud-service",
+      "repayment-service",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "risk-engine",
+      "loan-orchestrator"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "Which repo sends customer messages about refund requests?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "customer-profile",
+      "payment-core",
+      "loan-orchestrator",
+      "merchant-service",
+      "ledger-core"
+    ],
+    "gold_repositories": [
+      "notification-core",
+      "payment-core",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": false
+  },
+  {
+    "question": "Which repo stores refund accounting entries?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "ledger-core",
+      "payment-core",
+      "merchant-service",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "ledger-core",
+      "payment-core",
+      "merchant-service"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Which service owns failed repayment handling?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "repayment-service",
+      "deployment-platform",
+      "subscription-service",
+      "checkout-service",
+      "observability-platform"
+    ],
+    "gold_repositories": [
+      "repayment-service",
+      "payment-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "If payment-core changes its refund API, which business services may be affected?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "payment-core",
+      "merchant-service",
+      "repayment-service",
+      "subscription-service",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "subscription-service",
+      "checkout-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.16,
+    "tokens": 12,
+    "success": false
+  },
+  {
+    "question": "If customer-profile changes its preferences API, who is affected?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "customer-profile",
+      "risk-engine",
+      "fraud-service",
+      "loan-orchestrator",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "subscription-service",
+      "notification-core",
+      "loan-orchestrator",
+      "risk-engine"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "If PaymentFailed changes shape, which repos need inspection?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "observability-platform",
+      "notification-core",
+      "subscription-service",
+      "repayment-service",
+      "payment-core"
+    ],
+    "gold_repositories": [
+      "notification-core",
+      "subscription-service",
+      "repayment-service",
+      "payment-core",
+      "observability-platform"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "If risk-engine changes loan score output, what repository breaks first?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "risk-engine",
+      "loan-orchestrator",
+      "fraud-service",
+      "observability-platform",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "risk-engine"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 11,
+    "success": false
+  },
+  {
+    "question": "What repositories participate in the payment authorization flow?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "payment-core",
+      "subscription-service",
+      "checkout-service",
+      "identity-core",
+      "repayment-service"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "What repositories participate in the loan application flow?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "repayment-service",
+      "identity-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "identity-core",
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "What services use ledger-core?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "ledger-core",
+      "payment-core",
+      "repayment-service",
+      "identity-core",
+      "merchant-service"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "merchant-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 5,
+    "success": false
+  },
+  {
+    "question": "Where are identity verification events published and consumed?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "identity-core",
+      "loan-orchestrator",
+      "risk-engine",
+      "fraud-service",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "identity-core",
+      "loan-orchestrator",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Which repo owns merchant settlement views?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "merchant-service",
+      "deployment-platform",
+      "loan-orchestrator",
+      "observability-platform",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where are managed databases for payment-core declared?",
+    "strategy": "semantic",
+    "retrieved_repositories": [
+      "payment-core",
+      "platform-infra",
+      "repayment-service",
+      "subscription-service",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "platform-infra",
+      "payment-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": false
+  },
+  {
+    "question": "Where is refund eligibility decided?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "payment-core",
+      "risk-engine",
+      "ledger-core",
+      "merchant-service"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "merchant-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 5,
+    "success": true
+  },
+  {
+    "question": "Which repository owns customer contact preferences?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "customer-profile",
+      "checkout-service",
+      "fraud-service",
+      "identity-core",
+      "loan-orchestrator"
+    ],
+    "gold_repositories": [
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where are service-to-service token issuance rules implemented?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "identity-core",
+      "risk-engine",
+      "checkout-service",
+      "customer-profile",
+      "deployment-platform"
+    ],
+    "gold_repositories": [
+      "identity-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Which service owns accounting reversals for refunds?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "ledger-core",
+      "merchant-service",
+      "checkout-service",
+      "customer-profile",
+      "deployment-platform"
+    ],
+    "gold_repositories": [
+      "ledger-core",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Where is the checkout payment flow orchestrated?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "checkout-service",
+      "deployment-platform",
+      "fraud-service",
+      "observability-platform",
+      "payment-core"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Where does checkout decide whether a card payment is accepted?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "checkout-service",
+      "payment-core",
+      "deployment-platform",
+      "fraud-service",
+      "observability-platform"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "checkout-service",
+      "fraud-service"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 10,
+    "success": false
+  },
+  {
+    "question": "Which repo coordinates customer verification and risk evaluation for loan applications?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "identity-core",
+      "customer-profile",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "identity-core",
+      "risk-engine",
+      "customer-profile"
+    ],
+    "latency_ms": 0.16,
+    "tokens": 11,
+    "success": true
+  },
+  {
+    "question": "What systems are involved when a merchant requests a refund?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "deployment-platform",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 10,
+    "success": true
+  },
+  {
+    "question": "What happens after a recurring subscription payment fails?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "subscription-service",
+      "deployment-platform",
+      "observability-platform",
+      "payment-core",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "subscription-service",
+      "payment-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Why was a loan application rejected?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "risk-engine",
+      "loan-orchestrator",
+      "customer-profile",
+      "deployment-platform",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "risk-engine",
+      "loan-orchestrator",
+      "customer-profile"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Which repositories participate in repayment collection?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "repayment-service",
+      "customer-profile",
+      "deployment-platform",
+      "ledger-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "repayment-service",
+      "payment-core",
+      "ledger-core",
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where is the production timeout for payment-core configured?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "deployment-platform",
+      "checkout-service",
+      "fraud-service",
+      "ledger-core",
+      "merchant-service"
+    ],
+    "gold_repositories": [
+      "deployment-platform",
+      "payment-core",
+      "observability-platform"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Where are payment event topics provisioned?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "platform-infra",
+      "checkout-service",
+      "deployment-platform",
+      "fraud-service",
+      "ledger-core"
+    ],
+    "gold_repositories": [
+      "platform-infra",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Which repo contains Kubernetes deployment templates for Atlas services?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "deployment-platform",
+      "notification-core",
+      "observability-platform"
+    ],
+    "gold_repositories": [
+      "deployment-platform",
+      "platform-infra"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Where should I investigate repeated payment timeout failures?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "observability-platform",
+      "deployment-platform",
+      "checkout-service",
+      "fraud-service",
+      "ledger-core"
+    ],
+    "gold_repositories": [
+      "observability-platform",
+      "payment-core",
+      "deployment-platform"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Which repository defines alerts for PaymentFailed spikes?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "observability-platform",
+      "notification-core",
+      "payment-core",
+      "repayment-service",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "observability-platform",
+      "notification-core",
+      "payment-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Which service decides whether a loan application is eligible?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "risk-engine",
+      "loan-orchestrator",
+      "customer-profile",
+      "deployment-platform",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "risk-engine",
+      "loan-orchestrator"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Which repo sends customer messages about refund requests?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "payment-core",
+      "checkout-service",
+      "customer-profile",
+      "fraud-service",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "notification-core",
+      "payment-core",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": false
+  },
+  {
+    "question": "Which repo stores refund accounting entries?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "ledger-core",
+      "merchant-service",
+      "payment-core"
+    ],
+    "gold_repositories": [
+      "ledger-core",
+      "payment-core",
+      "merchant-service"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Which service owns failed repayment handling?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "repayment-service",
+      "customer-profile",
+      "deployment-platform",
+      "ledger-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "repayment-service",
+      "payment-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "If payment-core changes its refund API, which business services may be affected?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "merchant-service",
+      "checkout-service",
+      "ledger-core",
+      "payment-core",
+      "repayment-service"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "subscription-service",
+      "checkout-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.16,
+    "tokens": 12,
+    "success": true
+  },
+  {
+    "question": "If customer-profile changes its preferences API, who is affected?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "customer-profile",
+      "checkout-service",
+      "fraud-service",
+      "identity-core",
+      "loan-orchestrator"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "subscription-service",
+      "notification-core",
+      "loan-orchestrator",
+      "risk-engine"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "If PaymentFailed changes shape, which repos need inspection?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "notification-core",
+      "observability-platform",
+      "payment-core",
+      "repayment-service",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "notification-core",
+      "subscription-service",
+      "repayment-service",
+      "payment-core",
+      "observability-platform"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "If risk-engine changes loan score output, what repository breaks first?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "risk-engine",
+      "customer-profile",
+      "loan-orchestrator",
+      "deployment-platform",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "risk-engine"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 11,
+    "success": false
+  },
+  {
+    "question": "What repositories participate in the payment authorization flow?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "payment-core",
+      "checkout-service",
+      "deployment-platform",
+      "fraud-service",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "What repositories participate in the loan application flow?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "customer-profile",
+      "deployment-platform",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "identity-core",
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "What services use ledger-core?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "ledger-core",
+      "merchant-service",
+      "payment-core",
+      "repayment-service",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "merchant-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 5,
+    "success": false
+  },
+  {
+    "question": "Where are identity verification events published and consumed?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "identity-core",
+      "loan-orchestrator",
+      "platform-infra",
+      "checkout-service",
+      "deployment-platform"
+    ],
+    "gold_repositories": [
+      "identity-core",
+      "loan-orchestrator",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Which repo owns merchant settlement views?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "merchant-service",
+      "deployment-platform",
+      "identity-core",
+      "ledger-core",
+      "payment-core"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where are managed databases for payment-core declared?",
+    "strategy": "metadata",
+    "retrieved_repositories": [
+      "platform-infra",
+      "checkout-service",
+      "deployment-platform",
+      "fraud-service",
+      "ledger-core"
+    ],
+    "gold_repositories": [
+      "platform-infra",
+      "payment-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Where is refund eligibility decided?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "ledger-core",
+      "merchant-service",
+      "identity-core",
+      "repayment-service"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "merchant-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 5,
+    "success": true
+  },
+  {
+    "question": "Which repository owns customer contact preferences?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "customer-profile",
+      "identity-core",
+      "notification-core",
+      "risk-engine",
+      "payment-core"
+    ],
+    "gold_repositories": [
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where are service-to-service token issuance rules implemented?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "customer-profile",
+      "identity-core",
+      "payment-core",
+      "checkout-service",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "identity-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "Which service owns accounting reversals for refunds?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "merchant-service",
+      "repayment-service"
+    ],
+    "gold_repositories": [
+      "ledger-core",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 7,
+    "success": false
+  },
+  {
+    "question": "Where is the checkout payment flow orchestrated?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "customer-profile"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Where does checkout decide whether a card payment is accepted?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "checkout-service",
+      "fraud-service"
+    ],
+    "latency_ms": 0.27,
+    "tokens": 10,
+    "success": false
+  },
+  {
+    "question": "Which repo coordinates customer verification and risk evaluation for loan applications?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "customer-profile",
+      "identity-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "identity-core",
+      "risk-engine",
+      "customer-profile"
+    ],
+    "latency_ms": 0.21,
+    "tokens": 11,
+    "success": true
+  },
+  {
+    "question": "What systems are involved when a merchant requests a refund?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "fraud-service",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.17,
+    "tokens": 10,
+    "success": true
+  },
+  {
+    "question": "What happens after a recurring subscription payment fails?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "subscription-service",
+      "checkout-service",
+      "fraud-service",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "subscription-service",
+      "payment-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.16,
+    "tokens": 8,
+    "success": false
+  },
+  {
+    "question": "Why was a loan application rejected?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "customer-profile",
+      "loan-orchestrator",
+      "risk-engine",
+      "identity-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "risk-engine",
+      "loan-orchestrator",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 6,
+    "success": false
+  },
+  {
+    "question": "Which repositories participate in repayment collection?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "repayment-service",
+      "customer-profile",
+      "notification-core",
+      "payment-core",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "repayment-service",
+      "payment-core",
+      "ledger-core",
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.13,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where is the production timeout for payment-core configured?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "checkout-service",
+      "merchant-service",
+      "repayment-service",
+      "subscription-service",
+      "payment-core"
+    ],
+    "gold_repositories": [
+      "deployment-platform",
+      "payment-core",
+      "observability-platform"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "Where are payment event topics provisioned?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "checkout-service",
+      "customer-profile"
+    ],
+    "gold_repositories": [
+      "platform-infra",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": false
+  },
+  {
+    "question": "Which repo contains Kubernetes deployment templates for Atlas services?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "customer-profile",
+      "identity-core",
+      "payment-core",
+      "checkout-service",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "deployment-platform",
+      "platform-infra"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "Where should I investigate repeated payment timeout failures?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "fraud-service",
+      "observability-platform",
+      "identity-core",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "observability-platform",
+      "payment-core",
+      "deployment-platform"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 7,
+    "success": false
+  },
+  {
+    "question": "Which repository defines alerts for PaymentFailed spikes?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "notification-core",
+      "subscription-service",
+      "repayment-service",
+      "customer-profile"
+    ],
+    "gold_repositories": [
+      "observability-platform",
+      "notification-core",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": false
+  },
+  {
+    "question": "Which service decides whether a loan application is eligible?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "customer-profile",
+      "loan-orchestrator",
+      "notification-core",
+      "risk-engine",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "risk-engine",
+      "loan-orchestrator"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "Which repo sends customer messages about refund requests?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "identity-core",
+      "fraud-service",
+      "risk-engine",
+      "ledger-core",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "notification-core",
+      "payment-core",
+      "customer-profile"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": false
+  },
+  {
+    "question": "Which repo stores refund accounting entries?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "merchant-service",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "ledger-core",
+      "payment-core",
+      "merchant-service"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": false
+  },
+  {
+    "question": "Which service owns failed repayment handling?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "repayment-service",
+      "notification-core",
+      "customer-profile",
+      "deployment-platform"
+    ],
+    "gold_repositories": [
+      "repayment-service",
+      "payment-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": false
+  },
+  {
+    "question": "If payment-core changes its refund API, which business services may be affected?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "merchant-service",
+      "ledger-core",
+      "checkout-service",
+      "repayment-service"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "subscription-service",
+      "checkout-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.16,
+    "tokens": 12,
+    "success": false
+  },
+  {
+    "question": "If customer-profile changes its preferences API, who is affected?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "identity-core",
+      "risk-engine",
+      "customer-profile",
+      "loan-orchestrator",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "subscription-service",
+      "notification-core",
+      "loan-orchestrator",
+      "risk-engine"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "If PaymentFailed changes shape, which repos need inspection?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "notification-core",
+      "subscription-service",
+      "repayment-service",
+      "customer-profile"
+    ],
+    "gold_repositories": [
+      "notification-core",
+      "subscription-service",
+      "repayment-service",
+      "payment-core",
+      "observability-platform"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "If risk-engine changes loan score output, what repository breaks first?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "customer-profile",
+      "risk-engine",
+      "identity-core",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "risk-engine"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 11,
+    "success": true
+  },
+  {
+    "question": "What repositories participate in the payment authorization flow?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "fraud-service",
+      "customer-profile",
+      "identity-core",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "What repositories participate in the loan application flow?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "customer-profile",
+      "loan-orchestrator",
+      "notification-core",
+      "risk-engine",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "identity-core",
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "What services use ledger-core?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "payment-core",
+      "ledger-core",
+      "merchant-service",
+      "repayment-service",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "merchant-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 5,
+    "success": true
+  },
+  {
+    "question": "Where are identity verification events published and consumed?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "customer-profile",
+      "identity-core",
+      "risk-engine",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "identity-core",
+      "loan-orchestrator",
+      "customer-profile"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Which repo owns merchant settlement views?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where are managed databases for payment-core declared?",
+    "strategy": "graph",
+    "retrieved_repositories": [
+      "checkout-service",
+      "payment-core",
+      "subscription-service",
+      "merchant-service",
+      "repayment-service"
+    ],
+    "gold_repositories": [
+      "platform-infra",
+      "payment-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": false
+  },
+  {
+    "question": "Where is refund eligibility decided?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "payment-core",
+      "ledger-core",
+      "merchant-service",
+      "risk-engine",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "merchant-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 5,
+    "success": true
+  },
+  {
+    "question": "Which repository owns customer contact preferences?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "customer-profile",
+      "notification-core",
+      "identity-core",
+      "risk-engine",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where are service-to-service token issuance rules implemented?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "identity-core",
+      "customer-profile",
+      "checkout-service",
+      "payment-core",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "identity-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Which service owns accounting reversals for refunds?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "ledger-core",
+      "payment-core",
+      "merchant-service",
+      "identity-core",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "ledger-core",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Where is the checkout payment flow orchestrated?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "observability-platform"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Where does checkout decide whether a card payment is accepted?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "checkout-service",
+      "fraud-service"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 10,
+    "success": false
+  },
+  {
+    "question": "Which repo coordinates customer verification and risk evaluation for loan applications?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "customer-profile",
+      "identity-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "identity-core",
+      "risk-engine",
+      "customer-profile"
+    ],
+    "latency_ms": 0.16,
+    "tokens": 11,
+    "success": true
+  },
+  {
+    "question": "What systems are involved when a merchant requests a refund?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 10,
+    "success": true
+  },
+  {
+    "question": "What happens after a recurring subscription payment fails?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "subscription-service",
+      "payment-core",
+      "checkout-service",
+      "observability-platform",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "subscription-service",
+      "payment-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Why was a loan application rejected?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "customer-profile",
+      "identity-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "risk-engine",
+      "loan-orchestrator",
+      "customer-profile"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": false
+  },
+  {
+    "question": "Which repositories participate in repayment collection?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "repayment-service",
+      "customer-profile",
+      "notification-core",
+      "payment-core",
+      "ledger-core"
+    ],
+    "gold_repositories": [
+      "repayment-service",
+      "payment-core",
+      "ledger-core",
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where is the production timeout for payment-core configured?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "deployment-platform",
+      "payment-core",
+      "checkout-service",
+      "repayment-service",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "deployment-platform",
+      "payment-core",
+      "observability-platform"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Where are payment event topics provisioned?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "payment-core",
+      "platform-infra",
+      "checkout-service",
+      "fraud-service",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "platform-infra",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": false
+  },
+  {
+    "question": "Which repo contains Kubernetes deployment templates for Atlas services?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "deployment-platform",
+      "customer-profile",
+      "identity-core",
+      "payment-core",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "deployment-platform",
+      "platform-infra"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": true
+  },
+  {
+    "question": "Where should I investigate repeated payment timeout failures?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "observability-platform",
+      "payment-core",
+      "deployment-platform",
+      "fraud-service",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "observability-platform",
+      "payment-core",
+      "deployment-platform"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 7,
+    "success": true
+  },
+  {
+    "question": "Which repository defines alerts for PaymentFailed spikes?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "observability-platform",
+      "notification-core",
+      "payment-core",
+      "subscription-service",
+      "repayment-service"
+    ],
+    "gold_repositories": [
+      "observability-platform",
+      "notification-core",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Which service decides whether a loan application is eligible?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "customer-profile",
+      "identity-core",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "risk-engine",
+      "loan-orchestrator"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "Which repo sends customer messages about refund requests?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "identity-core",
+      "payment-core",
+      "customer-profile",
+      "fraud-service",
+      "ledger-core"
+    ],
+    "gold_repositories": [
+      "notification-core",
+      "payment-core",
+      "customer-profile"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": false
+  },
+  {
+    "question": "Which repo stores refund accounting entries?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "ledger-core",
+      "payment-core",
+      "merchant-service",
+      "identity-core",
+      "checkout-service"
+    ],
+    "gold_repositories": [
+      "ledger-core",
+      "payment-core",
+      "merchant-service"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Which service owns failed repayment handling?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "repayment-service",
+      "payment-core",
+      "deployment-platform",
+      "observability-platform",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "repayment-service",
+      "payment-core",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "If payment-core changes its refund API, which business services may be affected?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "payment-core",
+      "merchant-service",
+      "repayment-service",
+      "checkout-service",
+      "ledger-core"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "subscription-service",
+      "checkout-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 12,
+    "success": false
+  },
+  {
+    "question": "If customer-profile changes its preferences API, who is affected?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "customer-profile",
+      "risk-engine",
+      "identity-core",
+      "loan-orchestrator",
+      "notification-core"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "subscription-service",
+      "notification-core",
+      "loan-orchestrator",
+      "risk-engine"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "If PaymentFailed changes shape, which repos need inspection?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "payment-core",
+      "notification-core",
+      "subscription-service",
+      "repayment-service",
+      "customer-profile"
+    ],
+    "gold_repositories": [
+      "notification-core",
+      "subscription-service",
+      "repayment-service",
+      "payment-core",
+      "observability-platform"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 9,
+    "success": false
+  },
+  {
+    "question": "If risk-engine changes loan score output, what repository breaks first?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "risk-engine",
+      "loan-orchestrator",
+      "customer-profile",
+      "identity-core",
+      "fraud-service"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "risk-engine"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 11,
+    "success": false
+  },
+  {
+    "question": "What repositories participate in the payment authorization flow?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "payment-core",
+      "identity-core",
+      "checkout-service",
+      "fraud-service",
+      "subscription-service"
+    ],
+    "gold_repositories": [
+      "checkout-service",
+      "payment-core",
+      "fraud-service",
+      "identity-core",
+      "customer-profile"
+    ],
+    "latency_ms": 0.15,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "What repositories participate in the loan application flow?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "customer-profile",
+      "notification-core",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "loan-orchestrator",
+      "risk-engine",
+      "identity-core",
+      "customer-profile",
+      "notification-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "What services use ledger-core?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "ledger-core",
+      "payment-core",
+      "repayment-service",
+      "merchant-service",
+      "identity-core"
+    ],
+    "gold_repositories": [
+      "payment-core",
+      "merchant-service",
+      "repayment-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 5,
+    "success": false
+  },
+  {
+    "question": "Where are identity verification events published and consumed?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "identity-core",
+      "loan-orchestrator",
+      "customer-profile",
+      "risk-engine",
+      "platform-infra"
+    ],
+    "gold_repositories": [
+      "identity-core",
+      "loan-orchestrator",
+      "customer-profile"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": true
+  },
+  {
+    "question": "Which repo owns merchant settlement views?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "merchant-service",
+      "payment-core",
+      "ledger-core",
+      "identity-core",
+      "deployment-platform"
+    ],
+    "gold_repositories": [
+      "merchant-service",
+      "ledger-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 6,
+    "success": true
+  },
+  {
+    "question": "Where are managed databases for payment-core declared?",
+    "strategy": "hybrid",
+    "retrieved_repositories": [
+      "payment-core",
+      "platform-infra",
+      "checkout-service",
+      "subscription-service",
+      "repayment-service"
+    ],
+    "gold_repositories": [
+      "platform-infra",
+      "payment-core"
+    ],
+    "latency_ms": 0.14,
+    "tokens": 8,
+    "success": false
+  }
+]

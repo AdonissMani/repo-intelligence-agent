@@ -1,0 +1,4 @@
+service: payment-core
+http:
+  timeout_ms: 2500
+  retries: 2

@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: repo_intelligence
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: atlas
+    ports:
+      - "5432:5432"

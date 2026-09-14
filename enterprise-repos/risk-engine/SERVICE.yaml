@@ -1,0 +1,23 @@
+name: risk-engine
+team: Risk Engine
+business_unit: Lending Business
+domain: credit decisioning
+type: service
+provides:
+  - credit scoring
+  - loan eligibility rules
+  - decisioning inputs
+apis:
+  - POST /v1/risk/loan-score
+depends_on:
+  - customer-profile
+  - identity-core
+consumed_by:
+  - loan-orchestrator
+publishes:
+  - RiskDecisionCalculated
+subscribes: []
+data_owned:
+  - risk decisions
+  - score explanations
+criticality: medium

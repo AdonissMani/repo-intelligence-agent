@@ -1,0 +1,32 @@
+name: customer-profile
+team: Customer Platform
+business_unit: Core Platform
+domain: customer data
+type: service
+provides:
+  - customer profile
+  - preferences
+  - contact details
+  - segmentation metadata
+apis:
+  - GET /v1/customers/{id}
+  - PATCH /v1/customers/{id}
+  - GET /v1/customers/{id}/preferences
+depends_on: []
+consumed_by:
+  - checkout-service
+  - subscription-service
+  - loan-orchestrator
+  - notification-core
+  - fraud-service
+  - risk-engine
+  - repayment-service
+publishes:
+  - CustomerProfileUpdated
+subscribes:
+  - UserCreated
+data_owned:
+  - customer contact details
+  - preferences
+  - segments
+criticality: medium

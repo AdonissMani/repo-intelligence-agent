@@ -1,0 +1,25 @@
+name: merchant-service
+team: Merchant Operations
+business_unit: Retail Business
+domain: merchant operations
+type: service
+provides:
+  - merchant transaction lookup
+  - merchant refund initiation
+  - settlement views
+apis:
+  - POST /v1/merchants/{id}/refunds
+  - GET /v1/merchants/{id}/transactions
+depends_on:
+  - payment-core
+  - ledger-core
+  - identity-core
+consumed_by: []
+publishes:
+  - MerchantRefundRequested
+subscribes:
+  - PaymentRefundRequested
+data_owned:
+  - merchant cases
+  - refund initiation audit
+criticality: medium

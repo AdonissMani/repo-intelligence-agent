@@ -1,0 +1,28 @@
+name: repayment-service
+team: Repayment
+business_unit: Lending Business
+domain: loan repayment
+type: service
+provides:
+  - repayment schedules
+  - payment collection
+  - failed repayment handling
+  - ledger integration
+apis:
+  - POST /v1/repayments/collect
+  - GET /v1/repayments/{id}/schedule
+depends_on:
+  - payment-core
+  - ledger-core
+  - customer-profile
+  - notification-core
+consumed_by: []
+publishes:
+  - RepaymentCollected
+  - RepaymentFailed
+subscribes:
+  - PaymentFailed
+data_owned:
+  - repayment schedules
+  - collection attempts
+criticality: medium

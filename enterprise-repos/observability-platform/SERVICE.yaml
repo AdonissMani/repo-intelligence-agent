@@ -1,0 +1,30 @@
+name: observability-platform
+team: Developer Platform
+business_unit: Infrastructure / Developer Platform
+domain: observability
+type: observability
+provides:
+  - dashboards
+  - alerts
+  - logging configuration
+  - tracing
+  - SLO definitions
+apis: []
+depends_on:
+  - deployment-platform
+consumed_by:
+  - payment-core
+  - checkout-service
+  - subscription-service
+  - loan-orchestrator
+  - repayment-service
+publishes: []
+subscribes:
+  - PaymentFailed
+  - PaymentRefundRequested
+  - LoanRejected
+data_owned:
+  - dashboards
+  - alert definitions
+  - trace sampling policies
+criticality: medium

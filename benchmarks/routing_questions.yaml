@@ -1,0 +1,181 @@
+questions:
+  - category: direct ownership
+    question: Where is refund eligibility decided?
+    primary_repositories: [payment-core]
+    secondary_repositories: [merchant-service, ledger-core]
+    expected_relationships: [merchant-service -> payment-core, payment-core -> ledger-core]
+    reason: payment-core owns refund eligibility; ledger records reversals.
+  - category: direct ownership
+    question: Which repository owns customer contact preferences?
+    primary_repositories: [customer-profile]
+    secondary_repositories: [notification-core]
+    expected_relationships: [notification-core -> customer-profile]
+    reason: customer-profile owns preferences and contact details.
+  - category: direct ownership
+    question: Where are service-to-service token issuance rules implemented?
+    primary_repositories: [identity-core]
+    secondary_repositories: []
+    expected_relationships: []
+    reason: identity-core owns token issuance.
+  - category: direct ownership
+    question: Which service owns accounting reversals for refunds?
+    primary_repositories: [ledger-core]
+    secondary_repositories: [payment-core]
+    expected_relationships: [payment-core -> ledger-core]
+    reason: ledger-core owns the financial accounting effect.
+  - category: orchestration
+    question: Where is the checkout payment flow orchestrated?
+    primary_repositories: [checkout-service]
+    secondary_repositories: [payment-core, fraud-service]
+    expected_relationships: [checkout-service -> payment-core, checkout-service -> fraud-service]
+    reason: checkout-service orchestrates, payment-core decides payment state.
+  - category: orchestration
+    question: Where does checkout decide whether a card payment is accepted?
+    primary_repositories: [payment-core]
+    secondary_repositories: [checkout-service, fraud-service]
+    expected_relationships: [checkout-service -> payment-core, payment-core -> fraud-service]
+    reason: checkout orchestrates but payment-core owns authorization decisioning.
+  - category: orchestration
+    question: Which repo coordinates customer verification and risk evaluation for loan applications?
+    primary_repositories: [loan-orchestrator]
+    secondary_repositories: [identity-core, risk-engine, customer-profile]
+    expected_relationships: [loan-orchestrator -> risk-engine]
+    reason: loan-orchestrator owns workflow coordination.
+  - category: cross-repository
+    question: What systems are involved when a merchant requests a refund?
+    primary_repositories: [merchant-service, payment-core, ledger-core]
+    secondary_repositories: [identity-core, notification-core]
+    expected_relationships: [merchant-service -> payment-core, payment-core -> ledger-core]
+    reason: merchant initiates, payment validates, ledger records.
+  - category: cross-repository
+    question: What happens after a recurring subscription payment fails?
+    primary_repositories: [subscription-service]
+    secondary_repositories: [payment-core, notification-core]
+    expected_relationships: [payment-core produces PaymentFailed, subscription-service consumes PaymentFailed]
+    reason: subscription-service owns retry and suspension policy.
+  - category: cross-repository
+    question: Why was a loan application rejected?
+    primary_repositories: [risk-engine]
+    secondary_repositories: [loan-orchestrator, customer-profile]
+    expected_relationships: [loan-orchestrator -> risk-engine -> customer-profile]
+    reason: risk-engine contains eligibility rules and explanations.
+  - category: cross-repository
+    question: Which repositories participate in repayment collection?
+    primary_repositories: [repayment-service, payment-core, ledger-core]
+    secondary_repositories: [customer-profile, notification-core]
+    expected_relationships: [repayment-service -> payment-core, repayment-service -> ledger-core]
+    reason: repayment delegates payment collection and records ledger effects.
+  - category: infrastructure
+    question: Where is the production timeout for payment-core configured?
+    primary_repositories: [deployment-platform]
+    secondary_repositories: [payment-core, observability-platform]
+    expected_relationships: [deployment-platform references payment-core]
+    reason: deployment-platform owns Helm production values.
+  - category: infrastructure
+    question: Where are payment event topics provisioned?
+    primary_repositories: [platform-infra]
+    secondary_repositories: [payment-core]
+    expected_relationships: [platform-infra references PaymentFailed]
+    reason: platform-infra owns Terraform messaging resources.
+  - category: infrastructure
+    question: Which repo contains Kubernetes deployment templates for Atlas services?
+    primary_repositories: [deployment-platform]
+    secondary_repositories: [platform-infra]
+    expected_relationships: []
+    reason: deployment-platform owns service rollout templates.
+  - category: observability
+    question: Where should I investigate repeated payment timeout failures?
+    primary_repositories: [observability-platform]
+    secondary_repositories: [payment-core, deployment-platform]
+    expected_relationships: [observability-platform references payment-core]
+    reason: observability owns alerts and dashboards for incidents.
+  - category: observability
+    question: Which repository defines alerts for PaymentFailed spikes?
+    primary_repositories: [observability-platform]
+    secondary_repositories: [notification-core, payment-core]
+    expected_relationships: [payment-core produces PaymentFailed]
+    reason: observability-platform owns alert definitions.
+  - category: ambiguous semantics
+    question: Which service decides whether a loan application is eligible?
+    primary_repositories: [risk-engine]
+    secondary_repositories: [loan-orchestrator]
+    expected_relationships: [loan-orchestrator -> risk-engine]
+    reason: risk-engine owns eligibility rules.
+  - category: ambiguous semantics
+    question: Which repo sends customer messages about refund requests?
+    primary_repositories: [notification-core]
+    secondary_repositories: [payment-core, customer-profile]
+    expected_relationships: [notification-core consumes PaymentRefundRequested]
+    reason: notification-core owns templates and delivery.
+  - category: ambiguous semantics
+    question: Which repo stores refund accounting entries?
+    primary_repositories: [ledger-core]
+    secondary_repositories: [payment-core, merchant-service]
+    expected_relationships: [payment-core -> ledger-core]
+    reason: ledger-core owns entries and reversals.
+  - category: ambiguous semantics
+    question: Which service owns failed repayment handling?
+    primary_repositories: [repayment-service]
+    secondary_repositories: [payment-core, notification-core]
+    expected_relationships: [repayment-service consumes PaymentFailed]
+    reason: repayment-service owns repayment-specific failures.
+  - category: impact analysis
+    question: If payment-core changes its refund API, which business services may be affected?
+    primary_repositories: [merchant-service, subscription-service, checkout-service, repayment-service]
+    secondary_repositories: [ledger-core]
+    expected_relationships: [merchant-service -> payment-core, checkout-service -> payment-core]
+    reason: business services consume payment-core APIs.
+  - category: impact analysis
+    question: If customer-profile changes its preferences API, who is affected?
+    primary_repositories: [checkout-service, subscription-service, notification-core]
+    secondary_repositories: [loan-orchestrator, risk-engine]
+    expected_relationships: [notification-core -> customer-profile]
+    reason: multiple services consume customer profile data.
+  - category: impact analysis
+    question: If PaymentFailed changes shape, which repos need inspection?
+    primary_repositories: [notification-core, subscription-service, repayment-service]
+    secondary_repositories: [payment-core, observability-platform]
+    expected_relationships: [payment-core produces PaymentFailed]
+    reason: subscribers and observability consume the event.
+  - category: impact analysis
+    question: If risk-engine changes loan score output, what repository breaks first?
+    primary_repositories: [loan-orchestrator]
+    secondary_repositories: [risk-engine]
+    expected_relationships: [loan-orchestrator -> risk-engine]
+    reason: loan-orchestrator consumes risk output.
+  - category: architecture discovery
+    question: What repositories participate in the payment authorization flow?
+    primary_repositories: [checkout-service, payment-core, fraud-service, identity-core]
+    secondary_repositories: [customer-profile]
+    expected_relationships: [checkout-service -> payment-core, payment-core -> fraud-service]
+    reason: checkout initiates and payment-core calls fraud and identity.
+  - category: architecture discovery
+    question: What repositories participate in the loan application flow?
+    primary_repositories: [loan-orchestrator, risk-engine, identity-core, customer-profile]
+    secondary_repositories: [notification-core]
+    expected_relationships: [loan-orchestrator -> risk-engine]
+    reason: workflow spans identity, profile, risk, and notifications.
+  - category: architecture discovery
+    question: What services use ledger-core?
+    primary_repositories: [payment-core, merchant-service, repayment-service]
+    secondary_repositories: [ledger-core]
+    expected_relationships: [payment-core -> ledger-core]
+    reason: payment, merchant, and repayment consume ledger.
+  - category: architecture discovery
+    question: Where are identity verification events published and consumed?
+    primary_repositories: [identity-core, loan-orchestrator]
+    secondary_repositories: [customer-profile]
+    expected_relationships: [identity-core produces IdentityVerified, loan-orchestrator consumes IdentityVerified]
+    reason: identity publishes verification events.
+  - category: direct ownership
+    question: Which repo owns merchant settlement views?
+    primary_repositories: [merchant-service]
+    secondary_repositories: [ledger-core]
+    expected_relationships: [merchant-service -> ledger-core]
+    reason: merchant-service owns settlement views using ledger data.
+  - category: infrastructure
+    question: Where are managed databases for payment-core declared?
+    primary_repositories: [platform-infra]
+    secondary_repositories: [payment-core]
+    expected_relationships: [platform-infra references payment-core]
+    reason: platform-infra owns Terraform database resources.

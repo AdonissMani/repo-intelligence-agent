@@ -1,0 +1,2 @@
+PUBLISHES = ['FraudCheckCompleted']
+SUBSCRIBES = []

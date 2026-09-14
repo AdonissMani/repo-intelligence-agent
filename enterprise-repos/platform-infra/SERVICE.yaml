@@ -1,0 +1,23 @@
+name: platform-infra
+team: Developer Platform / Infrastructure
+business_unit: Infrastructure / Developer Platform
+domain: shared infrastructure
+type: infrastructure
+provides:
+  - Terraform networking
+  - managed databases
+  - queues and topics
+  - IAM roles
+apis: []
+depends_on: []
+consumed_by:
+  - identity-core
+  - payment-core
+  - checkout-service
+  - loan-orchestrator
+  - subscription-service
+publishes: []
+subscribes: []
+data_owned:
+  - infrastructure state
+criticality: medium

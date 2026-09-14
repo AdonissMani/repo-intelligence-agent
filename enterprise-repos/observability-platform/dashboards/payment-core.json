@@ -1,0 +1,8 @@
+{
+  "title": "payment-core health",
+  "panels": [
+    "latency",
+    "timeouts",
+    "PaymentFailed events"
+  ]
+}

@@ -1,0 +1,4 @@
+[project]
+name = "loan-orchestrator"
+version = "0.1.0"
+dependencies = ["fastapi"]

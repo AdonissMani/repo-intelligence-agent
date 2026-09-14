@@ -1,0 +1,27 @@
+name: checkout-service
+team: Checkout
+business_unit: Retail Business
+domain: checkout orchestration
+type: service
+provides:
+  - shopping cart checkout
+  - order creation
+  - payment orchestration
+  - promotion validation
+apis:
+  - POST /v1/checkout
+  - POST /v1/checkout/{id}/retry
+depends_on:
+  - identity-core
+  - customer-profile
+  - payment-core
+  - fraud-service
+consumed_by: []
+publishes:
+  - CheckoutCompleted
+  - CheckoutFailed
+subscribes: []
+data_owned:
+  - checkout sessions
+  - orders
+criticality: medium

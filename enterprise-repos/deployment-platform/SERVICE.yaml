@@ -1,0 +1,26 @@
+name: deployment-platform
+team: Developer Platform
+business_unit: Infrastructure / Developer Platform
+domain: deployments
+type: deployment
+provides:
+  - Helm charts
+  - deployment configuration
+  - environment configuration
+  - rollout policies
+apis: []
+depends_on:
+  - platform-infra
+consumed_by:
+  - identity-core
+  - payment-core
+  - checkout-service
+  - merchant-service
+  - subscription-service
+  - loan-orchestrator
+  - repayment-service
+publishes: []
+subscribes: []
+data_owned:
+  - deployment templates
+criticality: medium

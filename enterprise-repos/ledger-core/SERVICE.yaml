@@ -1,0 +1,31 @@
+name: ledger-core
+team: Finance Platform
+business_unit: Core Platform
+domain: ledger and accounting
+type: service
+provides:
+  - accounting entries
+  - payment ledger
+  - refund reversals
+  - reconciliation primitives
+apis:
+  - POST /v1/ledger/entries
+  - POST /v1/ledger/reversals
+  - GET /v1/ledger/transactions/{id}
+depends_on: []
+consumed_by:
+  - payment-core
+  - repayment-service
+  - merchant-service
+publishes:
+  - LedgerEntryPosted
+  - LedgerReversalPosted
+subscribes:
+  - PaymentAuthorized
+  - PaymentCaptured
+  - PaymentRefundRequested
+data_owned:
+  - journal entries
+  - ledger transactions
+  - reversals
+criticality: high

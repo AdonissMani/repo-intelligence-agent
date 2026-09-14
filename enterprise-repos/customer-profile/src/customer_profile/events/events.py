@@ -1,0 +1,2 @@
+PUBLISHES = ['CustomerProfileUpdated']
+SUBSCRIBES = ['UserCreated']

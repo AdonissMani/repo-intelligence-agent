@@ -1,0 +1,2 @@
+PUBLISHES = ['CheckoutCompleted', 'CheckoutFailed']
+SUBSCRIBES = []

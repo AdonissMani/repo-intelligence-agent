@@ -1,0 +1,2 @@
+PUBLISHES = ['MerchantRefundRequested']
+SUBSCRIBES = ['PaymentRefundRequested']

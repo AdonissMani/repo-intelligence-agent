@@ -1,0 +1,1 @@
+SUBSCRIBES_EVENT = 'PaymentFailed'

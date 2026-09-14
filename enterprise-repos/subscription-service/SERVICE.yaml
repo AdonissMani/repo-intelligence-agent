@@ -1,0 +1,28 @@
+name: subscription-service
+team: Subscription Commerce
+business_unit: Retail Business
+domain: recurring commerce
+type: service
+provides:
+  - recurring billing
+  - subscription lifecycle
+  - scheduled charges
+  - failed-payment retries
+apis:
+  - POST /v1/subscriptions
+  - POST /v1/subscriptions/{id}/retry
+depends_on:
+  - payment-core
+  - customer-profile
+  - notification-core
+consumed_by: []
+publishes:
+  - SubscriptionSuspended
+  - SubscriptionRenewed
+subscribes:
+  - PaymentFailed
+data_owned:
+  - subscriptions
+  - billing schedules
+  - retry state
+criticality: medium

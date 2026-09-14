@@ -1,0 +1,2 @@
+PUBLISHES = ['UserCreated', 'IdentityVerified']
+SUBSCRIBES = []

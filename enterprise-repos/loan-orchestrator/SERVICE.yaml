@@ -1,0 +1,29 @@
+name: loan-orchestrator
+team: Loan Orchestration
+business_unit: Lending Business
+domain: loan workflows
+type: service
+provides:
+  - loan application workflow
+  - customer verification
+  - risk evaluation orchestration
+  - loan state transitions
+apis:
+  - POST /v1/loans/apply
+  - GET /v1/loans/{id}
+  - POST /v1/loans/{id}/approve
+depends_on:
+  - identity-core
+  - customer-profile
+  - risk-engine
+  - notification-core
+consumed_by: []
+publishes:
+  - LoanApproved
+  - LoanRejected
+subscribes:
+  - IdentityVerified
+data_owned:
+  - loan applications
+  - loan workflow state
+criticality: medium
