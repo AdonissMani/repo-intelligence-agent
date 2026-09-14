@@ -34,8 +34,10 @@ def path_accuracy(result_paths: list[list[str]], expected_relationships: list[st
             parts = [part.strip() for part in relationship.split(" -> ")]
             expected_edges.extend(zip(parts, parts[1:]))
     if not expected_edges:
-        return 1.0
+        return 0.0
     discovered_edges = set()
     for path in result_paths:
         discovered_edges.update(zip(path, path[1:]))
+    if not discovered_edges:
+        return 0.0
     return len(set(expected_edges) & discovered_edges) / len(set(expected_edges))

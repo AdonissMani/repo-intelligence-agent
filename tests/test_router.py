@@ -2,7 +2,9 @@ import unittest
 from pathlib import Path
 
 from app.config.paths import ENTERPRISE_REPOS
+from app.db.models import Relationship
 from app.graph.extractor import extract_relationships
+from app.graph.traversal import RepositoryGraph
 from app.ingestion.parser import ingest_enterprise
 from app.routing.router import RepositoryRouter
 
@@ -32,6 +34,28 @@ class RouterTests(unittest.TestCase):
     def test_invalid_strategy_raises(self):
         with self.assertRaises(ValueError):
             build_router().route("anything", strategy="answer_key")
+
+    def test_graph_traversal_respects_max_nodes(self):
+        graph = RepositoryGraph(
+            [
+                Relationship("A", "DEPENDS_ON", "B", "B"),
+                Relationship("A", "DEPENDS_ON", "C", "C"),
+                Relationship("B", "DEPENDS_ON", "D", "D"),
+                Relationship("B", "DEPENDS_ON", "E", "E"),
+                Relationship("C", "DEPENDS_ON", "F", "F"),
+            ],
+            {"A", "B", "C", "D", "E", "F"},
+        )
+        expanded = graph.expand({"A": 1.0}, depth=3, max_nodes=4)
+        self.assertLessEqual(len(expanded), 4)
+        self.assertTrue("A" in expanded)
+        self.assertTrue("B" in expanded or "C" in expanded)
+
+    def test_adaptive_config_does_not_duplicate_max_nodes(self):
+        field_names = list(RepositoryRouter.__dict__.get("__annotations__", {}).keys())
+        self.assertNotIn("max_nodes", field_names)
+        self.assertEqual(len(RepositoryRouter.__dict__.get("__annotations__", {})), 0)
+        self.assertIn("max_nodes", RepositoryRouter.route.__globals__["AdaptiveConfig"].__dataclass_fields__)
 
     def test_graph_depth_changes_path_availability(self):
         router = build_router()

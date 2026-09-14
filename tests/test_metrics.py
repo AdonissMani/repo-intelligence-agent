@@ -16,6 +16,14 @@ class MetricsTests(unittest.TestCase):
         expected = ["merchant-service -> payment-core", "payment-core -> ledger-core"]
         self.assertEqual(path_accuracy(paths, expected), 1.0)
 
+    def test_path_accuracy_ignores_questions_with_no_expected_paths(self):
+        self.assertEqual(path_accuracy([["merchant-service", "payment-core"]], []), 0.0)
+
+    def test_path_accuracy_partial_match(self):
+        paths = [["merchant-service", "payment-core"]]
+        expected = ["merchant-service -> payment-core", "payment-core -> ledger-core"]
+        self.assertEqual(path_accuracy(paths, expected), 0.5)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -71,27 +71,37 @@ class RepositoryGraph:
                         adjacency[provider].append((consumer, "REVERSE_API_CALL", api))
         return adjacency
 
-    def expand(self, seeds: dict[str, float], depth: int) -> dict[str, GraphPath]:
+    def expand(self, seeds: dict[str, float], depth: int, max_nodes: int | None = None) -> dict[str, GraphPath]:
         best: dict[str, GraphPath] = {}
         queue = deque()
         for name, score in seeds.items():
             if name not in self.repositories or score <= 0:
                 continue
+            if max_nodes is not None and len(best) >= max_nodes:
+                break
             best[name] = GraphPath(name, score, [name])
             queue.append((name, score, [name], [], [], 0))
 
         while queue:
             current, score, path, rels, evidence, hops = queue.popleft()
+            if max_nodes is not None and len(best) >= max_nodes:
+                break
             if hops >= depth:
                 continue
             for target, rel_type, rel_evidence in self.adjacency.get(current, []):
                 if target in path:
                     continue
+                if max_nodes is not None and target in best:
+                    continue
+                if max_nodes is not None and len(best) >= max_nodes:
+                    break
                 edge_weight = relationship_weight(rel_type)
                 next_score = score * edge_weight * DECAY_BY_HOP
                 next_path = path + [target]
                 next_rels = rels + [rel_type]
                 next_evidence = evidence + [rel_evidence]
+                if max_nodes is not None and len(best) >= max_nodes:
+                    break
                 existing = best.get(target)
                 if existing is None or next_score > existing.score:
                     best[target] = GraphPath(target, next_score, next_path, next_rels, next_evidence)

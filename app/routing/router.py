@@ -27,7 +27,6 @@ class AdaptiveConfig:
     initial_seed_count: int = 5
     max_depth: int = 3
     max_nodes: int = 20
-    max_nodes: int = 20
     max_rounds: int = 4
     min_confidence: float = 0.70
     min_margin: float = 0.10
@@ -147,6 +146,7 @@ class RepositoryRouter:
         profile = self._query_profile(question)
         final_scores = self._hybrid_scores(lexical, semantic, metadata, {})
         previous_best = 0.0
+        previous_ranked: list[tuple[str, float]] = []
         final_depth = 0
         final_reason = "NO_EVIDENCE"
         adaptive_sufficient = False
@@ -169,7 +169,10 @@ class RepositoryRouter:
                 second_score = ranked[1][1] if len(ranked) > 1 else 0.0
                 margin = max(0.0, top_score - second_score)
                 confidence = top_score
-                evidence_gain = max(0.0, confidence - previous_best)
+                evidence_gain = self._compute_evidence_gain(
+                    {name: score for name, score in previous_ranked} if previous_ranked else {},
+                    {name: score for name, score in ranked},
+                ) if previous_ranked else 0.0
                 sufficiency = self._evaluate_sufficiency(candidate_scores, profile, config, confidence, margin, evidence_gain)
                 final_scores = candidate_scores
                 bind_graph_paths = graph_paths
@@ -178,6 +181,7 @@ class RepositoryRouter:
                 adaptive_sufficient = sufficiency.sufficient
                 rounds = depth + 1
                 previous_best = confidence
+                previous_ranked = ranked
                 explored_nodes.update(graph_paths.keys())
                 explored_edges.extend(
                     [(path.repository, target) for path in graph_paths.values() for target in path.path[1:]]
@@ -255,6 +259,28 @@ class RepositoryRouter:
             return QueryProfile(category="direct", likely_multi_repo=False)
         return QueryProfile(category="architecture", likely_multi_repo=True)
 
+    def _compute_evidence_gain(
+        self,
+        previous_scores: dict[str, float],
+        current_scores: dict[str, float],
+    ) -> float:
+        if not previous_scores and not current_scores:
+            return 0.0
+        previous_set = set(previous_scores)
+        current_set = set(current_scores)
+        new_candidates = current_set - previous_set
+        new_candidate_gain = len(new_candidates) / max(len(current_set), 1)
+
+        shared = current_set & previous_set
+        improvements = []
+        for repo in sorted(shared):
+            delta = current_scores.get(repo, 0.0) - previous_scores.get(repo, 0.0)
+            if delta > 0.0:
+                improvements.append(delta)
+
+        score_gain = sum(improvements) / max(len(current_set), 1)
+        return min(1.0, 0.7 * new_candidate_gain + 0.3 * max(0.0, score_gain))
+
     def _evaluate_sufficiency(
         self,
         scores: dict[str, float],
@@ -274,10 +300,10 @@ class RepositoryRouter:
         direct_threshold = config.min_confidence if not profile.likely_multi_repo else config.min_confidence - 0.08
         if confidence >= direct_threshold and margin >= config.min_margin:
             return SufficiencyResult(True, confidence, margin, "HIGH_CONFIDENCE", evidence_gain)
+        if profile.likely_multi_repo and evidence_gain < config.min_evidence_gain:
+            return SufficiencyResult(False, confidence, margin, "NO_MEANINGFUL_NEW_EVIDENCE", evidence_gain)
         if profile.likely_multi_repo and confidence >= 0.60 and margin >= 0.05:
             return SufficiencyResult(False, confidence, margin, "MULTI_REPO_CONTINUE", evidence_gain)
-        if profile.likely_multi_repo and evidence_gain >= config.min_evidence_gain:
-            return SufficiencyResult(True, confidence, margin, "MEANINGFUL_EVIDENCE_GAIN", evidence_gain)
         return SufficiencyResult(False, confidence, margin, "INSUFFICIENT_EVIDENCE", evidence_gain)
 
     def _hybrid_scores(
@@ -324,7 +350,7 @@ class RepositoryRouter:
         for repo in self.repositories:
             seed_scores[repo.name] = max(lexical[repo.name], semantic[repo.name], metadata[repo.name])
         seeds = dict(sorted(seed_scores.items(), key=lambda item: item[1], reverse=True)[:SEED_COUNT])
-        return self.graph.expand(seeds, max(0, graph_depth))
+        return self.graph.expand(seeds, max(0, graph_depth), max_nodes=getattr(self, "max_nodes", None))
 
     def _graph_scores(self, graph_paths: dict[str, GraphPath]) -> dict[str, float]:
         raw = {repo.name: graph_paths.get(repo.name, GraphPath(repo.name, 0.0, [repo.name])).score for repo in self.repositories}
