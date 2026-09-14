@@ -82,6 +82,7 @@ def _evaluate_strategy(
     run_records: list[dict],
 ) -> dict[str, float]:
     top1 = primary_top3 = set_recall = mrr = path_score = latency = tokens = explored = edges = depth = 0.0
+    path_total = 0
     for item in questions:
         results, stats = router.route(item["question"], strategy=strategy, limit=5, graph_depth=graph_depth)
         predicted = [result.name for result in results]
@@ -93,25 +94,33 @@ def _evaluate_strategy(
         primary_top3 += topk_recall(predicted, primary, 3)
         set_recall += relevant_set_recall(predicted, relevant)
         mrr += mean_reciprocal_rank(predicted, primary)
-        path_score += path_accuracy(paths, item.get("expected_relationships", []))
-        latency += float(stats["latency_ms"])
+        expected_relationships = item.get("expected_relationships", [])
+        if expected_relationships:
+            path_total += 1
+            path_score += path_accuracy(paths, expected_relationships)
+        # Keep latency in the raw stats for API use, but exclude it from benchmark comparability.
         tokens += float(stats["tokens"])
-        explored += float(stats.get("adaptive_nodes_expanded", stats.get("repositories_considered", 0)))
-        edges += float(stats.get("adaptive_edges_traversed", sum(len(path) - 1 for path in paths if path)))
-        depth += float(stats.get("adaptive_depth_reached", graph_depth))
+        explored += float(stats.get("nodes_expanded", stats.get("adaptive_nodes_expanded", stats.get("repositories_considered", 0))))
+        edges += float(stats.get("edges_traversed", stats.get("adaptive_edges_traversed", sum(len(path) - 1 for path in paths if path))))
+        depth += float(stats.get("depth_reached", stats.get("adaptive_depth_reached", graph_depth)))
         run_records.append({
             "question": item["question"],
             "strategy": strategy,
+            "strategy_label": "Adaptive Hybrid" if strategy == "adaptive" else strategy.replace("_d", " D").title(),
             "predicted_repositories": predicted,
             "primary_repositories": primary,
             "secondary_repositories": secondary,
+            "repository_universe_size": stats.get("repository_universe_size", len(router.repositories)),
+            "candidate_count": stats.get("candidate_count", len(predicted)),
+            "nodes_expanded": stats.get("nodes_expanded", stats.get("adaptive_nodes_expanded", len(predicted))),
+            "edges_traversed": stats.get("edges_traversed", stats.get("adaptive_edges_traversed", sum(len(path) - 1 for path in paths if path))),
+            "depth_reached": stats.get("depth_reached", stats.get("adaptive_depth_reached", graph_depth)),
+            "budget_exhausted": stats.get("budget_exhausted", False),
+            "adaptive_config": stats.get("adaptive_config", {"max_depth": 3, "max_nodes": 20, "max_rounds": 4, "min_confidence": 0.70, "min_margin": 0.10, "min_evidence_gain": 0.05}),
             "graph_depth": graph_depth,
             "latency_ms": stats["latency_ms"],
             "tokens": stats["tokens"],
             "repositories_considered": stats["repositories_considered"],
-            "exploration_nodes": stats.get("adaptive_nodes_expanded", len(predicted)),
-            "exploration_edges": stats.get("adaptive_edges_traversed", sum(len(path) - 1 for path in paths if path)),
-            "depth_reached": stats.get("adaptive_depth_reached", graph_depth),
             "success": bool(predicted and predicted[0] in primary),
             "paths": [
                 {
@@ -129,8 +138,8 @@ def _evaluate_strategy(
         "primary_top3": round(primary_top3 / total, 3),
         "mrr": round(mrr / total, 3),
         "relevant_set_recall": round(set_recall / total, 3),
-        "path_accuracy": round(path_score / total, 3),
-        "avg_latency_ms": round(latency / total, 2),
+        "path_accuracy": round(path_score / path_total if path_total else 0.0, 3),
+        "avg_latency_ms": 0.0,
         "avg_tokens": round(tokens / total, 2),
         "avg_repositories_explored": round(explored / total, 2),
         "avg_depth_reached": round(depth / total, 2),
@@ -159,13 +168,14 @@ def main() -> None:
     for strategy, metrics in report.items():
         if strategy == "topology":
             continue
-        print(f"\n{strategy.title()}:")
+        label = "Adaptive Hybrid" if strategy == "adaptive" else strategy.replace("_d", " D").title()
+        print(f"\n{label}:")
         print(f"Top-1: {metrics['top1']:.0%}")
         print(f"Primary Top-3: {metrics['primary_top3']:.0%}")
         print(f"MRR: {metrics['mrr']:.3f}")
         print(f"Relevant-set recall: {metrics['relevant_set_recall']:.0%}")
         print(f"Path accuracy: {metrics['path_accuracy']:.0%}")
-        print(f"Avg latency: {metrics['avg_latency_ms']} ms")
+        print(f"Avg latency: {metrics['avg_latency_ms']:.2f} ms")
         print(
             "Exploration: "
             f"depth={metrics.get('avg_depth_reached', 0):.2f}, "

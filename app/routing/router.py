@@ -129,7 +129,12 @@ class RepositoryRouter:
             "latency_ms": round((time.perf_counter() - started) * 1000, 2),
             "tokens": len(TOKEN_RE.findall(question)),
             "repositories_considered": len(self.repositories),
+            "repository_universe_size": len(self.repositories),
+            "candidate_count": len(results),
             "graph_depth": graph_depth,
+            "depth_reached": graph_depth,
+            "nodes_expanded": len(graph_paths),
+            "edges_traversed": sum(len(path.path) - 1 for path in graph_paths.values() if path.path),
         }
         return results, stats
 
@@ -223,11 +228,18 @@ class RepositoryRouter:
             sufficient=adaptive_sufficient,
             stop_reason=final_reason,
         )
+        budget_exhausted = len(explored_nodes) >= config.max_nodes and final_reason == "MAX_NODES_REACHED"
         stats: dict[str, int | float | str | bool | list[dict]] = {
             "latency_ms": round((time.perf_counter() - started) * 1000, 2),
             "tokens": len(TOKEN_RE.findall(question)),
             "repositories_considered": len(self.repositories),
+            "repository_universe_size": len(self.repositories),
+            "candidate_count": len(results),
             "graph_depth": final_depth,
+            "depth_reached": final_depth,
+            "nodes_expanded": len(explored_nodes),
+            "edges_traversed": len(explored_edges),
+            "budget_exhausted": budget_exhausted,
             "adaptive_depth_reached": final_depth,
             "adaptive_sufficient": adaptive_sufficient,
             "adaptive_stop_reason": final_reason,
@@ -235,6 +247,14 @@ class RepositoryRouter:
             "adaptive_nodes_expanded": len(explored_nodes),
             "adaptive_edges_traversed": len(explored_edges),
             "adaptive_trace": round_traces,
+            "adaptive_config": {
+                "max_depth": config.max_depth,
+                "max_nodes": config.max_nodes,
+                "max_rounds": config.max_rounds,
+                "min_confidence": config.min_confidence,
+                "min_margin": config.min_margin,
+                "min_evidence_gain": config.min_evidence_gain,
+            },
             "adaptive_state": {
                 "question": state.question,
                 "depth_reached": state.depth_reached,
@@ -245,6 +265,7 @@ class RepositoryRouter:
                 "evidence_gain": round(state.evidence_gain, 4),
                 "sufficient": state.sufficient,
                 "stop_reason": state.stop_reason,
+                "budget_exhausted": budget_exhausted,
             },
         }
         return results, stats
