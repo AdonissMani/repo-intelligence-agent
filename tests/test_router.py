@@ -69,14 +69,13 @@ class RouterTests(unittest.TestCase):
         self.assertLessEqual(stats["nodes_expanded"], 1)
         self.assertTrue(stats.get("budget_exhausted", False) or stats["adaptive_stop_reason"] == "MAX_NODES_REACHED")
 
-    def test_evidence_gain_requires_new_information(self):
+    def test_non_graph_strategies_do_not_traverse_graph(self):
         router = build_router()
-        previous = {"merchant-service": 0.72, "payment-core": 0.69}
-        current = {"merchant-service": 0.72, "payment-core": 0.69, "ledger-core": 0.65}
-        self.assertGreater(router._compute_evidence_gain(previous, current), 0.0)
-
-        unchanged = {"merchant-service": 0.73, "payment-core": 0.70}
-        self.assertLessEqual(router._compute_evidence_gain(unchanged, unchanged), 0.05)
+        for strategy in ["lexical", "semantic", "metadata"]:
+            _, stats = router.route("merchant payment ledger", strategy=strategy)
+            self.assertEqual(stats["nodes_expanded"], 0)
+            self.assertEqual(stats["edges_traversed"], 0)
+            self.assertEqual(stats["depth_reached"], 0)
 
     def test_graph_depth_changes_path_availability(self):
         router = build_router()

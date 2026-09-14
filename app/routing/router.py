@@ -104,8 +104,12 @@ class RepositoryRouter:
         if strategy == "adaptive":
             return self._route_adaptive(question, lexical, semantic, metadata, limit)
 
-        graph_paths = self._graph_paths(lexical, semantic, metadata, graph_depth)
-        graph = self._graph_scores(graph_paths)
+        graph_paths: dict[str, GraphPath] = {}
+        graph: dict[str, float] = {}
+        if strategy in {"graph", "hybrid"}:
+            graph_paths = self._graph_paths(lexical, semantic, metadata, graph_depth)
+            graph = self._graph_scores(graph_paths)
+
         scores: dict[str, float] = {}
         for repo in self.repositories:
             if strategy == "lexical":
@@ -133,8 +137,8 @@ class RepositoryRouter:
             "repositories_considered": len(self.repositories),
             "repository_universe_size": len(self.repositories),
             "candidate_count": len(results),
-            "graph_depth": graph_depth,
-            "depth_reached": graph_depth,
+            "graph_depth": 0 if strategy in {"lexical", "semantic", "metadata"} else graph_depth,
+            "depth_reached": 0 if strategy in {"lexical", "semantic", "metadata"} else graph_depth,
             "nodes_expanded": len(graph_paths),
             "edges_traversed": sum(len(path.path) - 1 for path in graph_paths.values() if path.path),
         }
@@ -188,7 +192,6 @@ class RepositoryRouter:
                     + 0.4 * (len(new_edges) / max(len(current_edges), 1))
                     if current_edges or current_nodes else 0.0
                 )
-                ranking_gain = max(0.0, confidence - max(0.0, max((score for _, score in ranked[1:]), default=0.0)))
                 sufficiency = self._evaluate_sufficiency(candidate_scores, profile, config, confidence, margin, evidence_gain)
                 final_scores = candidate_scores
                 bind_graph_paths = graph_paths
@@ -212,7 +215,6 @@ class RepositoryRouter:
                         "new_edges": len(new_edges),
                         "confidence": round(confidence, 4),
                         "margin": round(margin, 4),
-                        "ranking_gain": round(ranking_gain, 4),
                         "evidence_gain": round(evidence_gain, 4),
                         "sufficient": sufficiency.sufficient,
                         "stop_reason": sufficiency.reason,
@@ -294,28 +296,6 @@ class RepositoryRouter:
         if any(phrase in q for phrase in ["which service", "which repo", "where is", "where are", "which repository", "owns", "owner"]):
             return QueryProfile(category="direct", likely_multi_repo=False)
         return QueryProfile(category="architecture", likely_multi_repo=True)
-
-    def _compute_evidence_gain(
-        self,
-        previous_scores: dict[str, float],
-        current_scores: dict[str, float],
-    ) -> float:
-        if not previous_scores and not current_scores:
-            return 0.0
-        previous_set = set(previous_scores)
-        current_set = set(current_scores)
-        new_candidates = current_set - previous_set
-        new_candidate_gain = len(new_candidates) / max(len(current_set), 1)
-
-        shared = current_set & previous_set
-        improvements = []
-        for repo in sorted(shared):
-            delta = current_scores.get(repo, 0.0) - previous_scores.get(repo, 0.0)
-            if delta > 0.0:
-                improvements.append(delta)
-
-        score_gain = sum(improvements) / max(len(current_set), 1)
-        return min(1.0, 0.7 * new_candidate_gain + 0.3 * max(0.0, score_gain))
 
     def _evaluate_sufficiency(
         self,
